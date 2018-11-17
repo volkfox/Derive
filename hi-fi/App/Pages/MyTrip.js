@@ -5,11 +5,11 @@ import { Images, Colors, Metrics } from '../Themes';
 import { NavigationActions } from 'react-navigation';
 import Icon from 'react-native-vector-icons/Feather';
 
-export default class Trip extends React.Component {
+export default class MyTrip extends React.Component {
 
 static navigationOptions = ({navigation}) => {
    return {
-        headerTitle: 'Placeholder',
+        headerTitle: 'Report',
     }
   };
 

@@ -1,25 +1,39 @@
 import React from 'react';
-import { StyleSheet, Text, View, Image, Button, ActivityIndicator, SectionList, Dimensions, ScrollView, SafeAreaView } from 'react-native';
+import { StyleSheet, Text, View, Image, Button, ActivityIndicator, SectionList, Dimensions, ScrollView, SafeAreaView, AsyncStorage } from 'react-native';
+
 import { createStackNavigator, createDrawerNavigator, createBottomTabNavigator, DrawerActions, DrawerItems, NavigationActions} from 'react-navigation';
 import { createMaterialBottomTabNavigator } from 'react-navigation-material-bottom-tabs';
+
+import {createStore} from 'redux';
+import {Provider } from 'react-redux';
+import devtools from 'remote-redux-devtools';
+
+import  {reducer}  from './App/Store/Reducers';
+import {restoreState, toggleOnboard} from './App/Store/Actions'
+
 import { Images, Colors, Metrics } from './App/Themes';
 import * as pages from './App/Pages';
 import Icon from 'react-native-vector-icons/Feather';
 
+// deferred features: multiple pics per POI, multiple planned trips,
+// usernames and profile settings, access to published reports
 const {width, height} = Dimensions.get('window');
 
-
+// navigators
 const BrowseNavigator = createStackNavigator(
   {
-    Browse: pages.BrowseStart,
+    Explore: pages.BrowseStart,
+    Trips: pages.Trips,
     Trip: pages.Trip,
     POI: pages.POI,
   },
   { headerMode: 'float',
-    initialRouteName: 'Browse',
+    initialRouteName: 'Explore',
     navigationOptions: ({navigation}) => {
 
         return {
+            headerTitle: 'Explore',
+            headerBackTitle: null,
         }
     }
 });
@@ -37,8 +51,8 @@ const PlanNavigator = createStackNavigator(
 const GenerationNavigator = createStackNavigator({
     
   Generation: pages.Generation,
-  Trip: pages.Trip,
-  POI: pages.POI,
+  Trip: pages.MyTrip,
+  POI: pages.EditPOI,
 }, { 
      headerMode: 'float',
      initialRouteName: 'Generation',
@@ -61,22 +75,41 @@ const CustomDrawerContentComponent = (props) => (
 );
 
 const DrawerNav = createDrawerNavigator({
-  Browse: {screen: BrowseNavigator},
+  Explore: {screen: BrowseNavigator},
   Plan: {screen: PlanNavigator},
-  Generate:  {screen: GenerationNavigator},
+  Report:  {screen: GenerationNavigator},
   },
-  { initialRouteName: 'Browse',
+  { initialRouteName: 'Explore',
     contentComponent: CustomDrawerContentComponent,
     
 });
 
+// redux debug midddleware
+const store = createStore(reducer,
+window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__());
 
+//Persist onboarding and article storage in async
+AsyncStorage.getItem('state').then(json => {
+  if (json) {
+    store.dispatch(restoreState(JSON.parse(json)));
+  } else {
+     store.dispatch(toggleOnboard(true)); 
+  }
+  store.subscribe(() => {
+    AsyncStorage.setItem('state', JSON.stringify(store.getState()));
+  })
+});
+
+
+// main App
 
 export default class App extends React.Component {
 
 render() {
       return (
-        <DrawerNav />
+        <Provider store={store}>
+            <DrawerNav/>
+        </Provider>
       );
     }
   }
