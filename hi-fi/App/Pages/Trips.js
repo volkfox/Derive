@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { StyleSheet, Text, View, Button, TextInput, SafeAreaView, Switch  } from 'react-native';
+import { StyleSheet, Text, View, Button, TextInput, SafeAreaView, Switch, Linking  } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { NavigationActions } from 'react-navigation';
 import { MapView, Marker} from 'expo';
@@ -106,6 +106,22 @@ static navigationOptions = ({navigation}) => {
     }
 };
 
+// logic: if there is an active marker double clicking always sends to marker position
+// otherwise navigate to the clicked point in the map
+
+sendToNav = (e) => {
+    
+    const navUrl = 'http://maps.apple.com/maps?saddr=Current%20Location&daddr='
+    
+    let coord = {};
+    if (Object.keys(this.state.activeMarker).length) {
+            coord = this.state.activeMarker.coordinate;
+    } else {
+            coord = e.nativeEvent.coordinate;
+    } 
+    Linking.openURL(navUrl+coord.latitude+','+coord.longitude).catch(err => console.error('Could not open Apple maps', err));
+}
+
                 
 componentDidMount() {
     const geodata = this.props.navigation.getParam('geodata');
@@ -158,6 +174,8 @@ componentDidMount() {
 
         <MapView
             style={styles.map}
+            onLongPress={this.sendToNav}
+            onMarkerDeselect={e => this.setState({activeMarker: {}})}
             onRegionChangeComplete={this.updateViewport}
             region={{
             latitude: location.lat,
