@@ -56,15 +56,16 @@ runSearch = (data, details) => {
                        lng: details.geometry.location.lng-0.01}
         }
     }
-    this.props.navigation.push('Trips',{geodata: {geometry: details.geometry, description: details.description?details.description:details.formatted_address}});
+    const description = details.description?details.description:details.formatted_address;
+    
+    let startWithMap =  false;
+    if (description == 'Current Location') startWithMap = true;
+    // need push here
+    this.props.navigation.push('Trips',{geodata: {geometry: details.geometry, description: description}, startWithMap: startWithMap});
 }
 
 _keyExtractor = (item, index) => item.id;
 
-_onPressItem = (poi) => {
-    // updater functions are preferred for transactional updates
-    console.log(poi);
-};
 
 _renderItem = ({item}) => {
    return (
