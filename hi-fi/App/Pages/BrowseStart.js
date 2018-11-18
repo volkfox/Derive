@@ -60,8 +60,8 @@ runSearch = (data, details) => {
     
     let startWithMap =  false;
     if (description == 'Current Location') startWithMap = true;
-    // need push here
-    this.props.navigation.push('Trips',{geodata: {geometry: details.geometry, description: description}, startWithMap: startWithMap});
+    // need push here?
+    this.props.navigation.navigate('Trips',{geodata: {geometry: details.geometry, description: description}, startWithMap: startWithMap});
 }
 
 _keyExtractor = (item, index) => item.id;

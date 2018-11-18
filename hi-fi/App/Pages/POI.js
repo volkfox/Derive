@@ -4,9 +4,9 @@ import {  Modal, StyleSheet, Text, View, TextInput, ScrollView, TouchableOpacity
 import { Card, Button } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/Feather';
 import ImageViewer from 'react-native-image-zoom-viewer';
+import StarRating from 'react-native-star-rating';
 
 import { Images, Colors, Metrics, GooglePlacesInput } from '../Themes';
-import StarRating from 'react-native-star-rating';
 
 export default class POI extends React.Component {
 
@@ -68,7 +68,7 @@ render() {
                     />
                     <Text style={{fontFamily: 'Helvetica Neue'}}>/{poi.derived}</Text>
                 </View>
-                <Text>by {poi.author} </Text>    
+                <Text>from trip by {poi.author} </Text>    
             </View>
 
           <Button

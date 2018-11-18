@@ -1,10 +1,11 @@
 
 import React from 'react';
-import { StyleSheet, Text, View, Button, TextInput, SafeAreaView, Switch, Linking  } from 'react-native';
+import { StyleSheet, Text, View, Button, TextInput, SafeAreaView, Switch, Linking, FlatList, ScrollView, TouchableOpacity, Image  } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { NavigationActions } from 'react-navigation';
 import { MapView, Marker} from 'expo';
 import { connect } from 'react-redux';
+import StarRating from 'react-native-star-rating';
 
 import { Images, Colors, Metrics } from '../Themes';
 
@@ -35,7 +36,6 @@ class Trips extends React.Component {
    },
 
    markers : [],
-   allpois: [],
      
    sleepFilter: true,
    foodFilter: true,
@@ -43,6 +43,63 @@ class Trips extends React.Component {
    activeMarker: {},
    showMap: this.props.navigation.getParam('startWithMap', false),
 }
+
+_keyExtractor = (item, index) => item.id;
+
+_renderTrip = ({item}) => {
+   const poilist = item.pois;
+   console.log(poilist);
+    
+   return (
+
+   <TouchableOpacity onPress={() => console.log("leaving the building")}>
+       
+       <View style = {styles.tripContainer}>
+           <View style= {styles.rating}>
+                <StarRating
+                    maxStars={5}
+                    rating={item.communityRating}
+                    emptyStar={'ios-star-outline'}
+                    fullStar={'ios-star'}
+                    halfStar={'ios-star-half'}
+                    iconSet={'Ionicons'}
+                    fullStarColor={Colors.gold}
+                    starSize={20}
+                    />
+                <Text style={{fontFamily: 'Helvetica Neue'}}>/{item.derived} </Text>
+            </View>
+           <View style = {styles.tripPropertiesContainer}>
+               
+            <Text style={styles.tripTitle} numberOfLines={1}> {item.title} </Text>
+            <Text numberOfLines={1}> by {item.author} </Text>
+                
+          </View>
+          <View style = {styles.photoContainer}>
+           {poilist.map(id => (
+                    <Image style={styles.thumbnail} 
+                        source={this.props.allpois.find(poi => poi.id === id).images[0]}
+                        key={id}
+                    />
+            ))}
+           </View>
+            
+       </View>
+    </TouchableOpacity>
+
+   );
+};
+
+_renderSeparator = () => {
+    return (
+      <View
+        style={{
+          height: StyleSheet.hairlineWidth,
+          width: Metrics.screenwidth,
+          backgroundColor: "#CED0CE",
+        }}
+      />
+    );
+  };
 
 toggleFilter = async (key) => {
     
@@ -92,8 +149,6 @@ filterMarkersByViewport = (vp) => {
        poi.coordinate.longitude < vp.northeast.lng &&
     ((this.state.sleepFilter && poi.category==='sleep') || (this.state.foodFilter && poi.category==='food') || (this.state.todoFilter && poi.category==='todo'))
    );
-   
-   
    this.setState({markers: markers});
 }
 
@@ -123,18 +178,29 @@ sendToNav = (e) => {
 }
 
                 
-componentDidMount() {
+async componentDidMount() {
     const geodata = this.props.navigation.getParam('geodata');
     // title change to search param - not sure why does not work
     //this.props.navigation.setParams({headerTitle: geodata.description});
-    this.setState({geodata: geodata});  
+    
+    // need to create markers even if starting with a list to find matching trips
+    this.filterMarkersByViewport(geodata.geometry.viewport);
+    this.setState({geodata: geodata});
 }
 
   render() {
       const {location, viewport} = this.state.geodata.geometry;
 
-      //console.log("render filtered markers:"+this.state.markers.length);
       
+      // find active trips for the viewport
+      const trips = [];
+      this.state.markers.forEach(marker => trips.push(marker.tripID));
+      const uniqueTrips = new Set(trips);
+      
+      const activeTrips = this.props.alltrips.filter(trip => uniqueTrips.has(trip.id))
+      console.log(activeTrips);
+      
+      // render map view
       if (this.state.showMap)
       return (
 
@@ -203,12 +269,28 @@ componentDidMount() {
         </SafeAreaView>
       ); 
 
+       const triplist = <FlatList 
+                            data={activeTrips}
+                            extraData={this.state.markers}
+                            keyExtractor={this._keyExtractor}
+                            renderItem={this._renderTrip}
+                            ItemSeparatorComponent={this._renderSeparator} 
+                         />
+                        
+       const nodata = <View style = {styles.bummer}> 
+           <Text> Bummer! No trips in this area. </Text> 
+        </View>
+       // render list view
        if (!this.state.showMap) return (
+           
          <SafeAreaView style={styles.container}>
 
           <Switch style={styles.switch}
             onValueChange = {this.toggleShowMap}
             value = {this.state.showMap}/>
+           
+           { activeTrips.length ? triplist : nodata }
+              
           </SafeAreaView>
       );
     }
@@ -219,6 +301,7 @@ function mapStateToProps(storeState) {
   //console.log(storeState.allpois);
   return {
     allpois: storeState.allpois,
+    alltrips: storeState.alltrips,
    };
 }
 
@@ -242,6 +325,43 @@ const styles = StyleSheet.create({
         position: 'relative',
         top: 10,
         left: -10,
+    },
+    thumbnail: {
+        height: Metrics.screenWidth/5,
+        width: Metrics.screenWidth/5,
+        resizeMode: 'cover',
+        margin: 4,
+    },
+    trips: {
+        
+    },
+    tripTitle: {
+        fontWeight: 'bold',
+        maxWidth: 200,
+    },
+    tripContainer: {
+        flex: 1,
+        flexDirection: 'column',
+        marginTop: 20,
+        marginBottom: 20,
+    },
+    photoContainer: {
+        flex: 1,
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+    },
+    tripPropertiesContainer: {
+        flexDirection: 'row',
+    },
+    bummer: {
+        alignSelf: 'center',
+        marginTop: 'auto',
+        marginBottom: 'auto',
+    },
+    rating: {
+        marginLeft: 10,
+        width: 120,
+        flexDirection: 'row',
     },
     map: {
      
