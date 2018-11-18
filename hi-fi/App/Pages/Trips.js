@@ -47,17 +47,18 @@ class Trips extends React.Component {
 _keyExtractor = (item, index) => item.id;
 
 _renderTrip = ({item}) => {
+    
    const poilist = item.pois;
-   console.log(poilist);
     
    return (
 
-   <TouchableOpacity onPress={() => console.log("leaving the building")}>
+   <TouchableOpacity onPress={() => this.props.navigation.navigate('Trip',{trip: item})}>
        
        <View style = {styles.tripContainer}>
            <View style= {styles.rating}>
                 <StarRating
                     maxStars={5}
+                    disabled={true}
                     rating={item.communityRating}
                     emptyStar={'ios-star-outline'}
                     fullStar={'ios-star'}
@@ -178,7 +179,7 @@ sendToNav = (e) => {
 }
 
                 
-async componentDidMount() {
+componentDidMount() {
     const geodata = this.props.navigation.getParam('geodata');
     // title change to search param - not sure why does not work
     //this.props.navigation.setParams({headerTitle: geodata.description});
@@ -298,7 +299,6 @@ async componentDidMount() {
 
 function mapStateToProps(storeState) {
   
-  //console.log(storeState.allpois);
   return {
     allpois: storeState.allpois,
     alltrips: storeState.alltrips,

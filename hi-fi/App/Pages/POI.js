@@ -5,10 +5,12 @@ import { Card, Button } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/Feather';
 import ImageViewer from 'react-native-image-zoom-viewer';
 import StarRating from 'react-native-star-rating';
+import { connect } from 'react-redux';
 
+import { addPlanPOI } from '../Store/Actions';
 import { Images, Colors, Metrics, GooglePlacesInput } from '../Themes';
 
-export default class POI extends React.Component {
+class POI extends React.Component {
 
 constructor(props){
     super(props);
@@ -26,26 +28,33 @@ static navigationOptions = ({navigation}) => {
     }
   };
 
-addToTrip = (poi) => {
-    //console.log(poi);
+addToTrip = (poiID) => {
+    this.props.addPlan(poiID);
 }
 
 _toggleModal = (state) => {
     this.setState({isModalVisible: state})
 }
 
+componentDidMount() {
+}
+
 
 render() {
-      
       const { navigation } = this.props;
-      const poi = navigation.getParam('poi', null);
     
+      const poi = navigation.getParam('poi', {});
+      if (!Object.keys(poi).length) return null;
+
       const images = poi.images.map( image => {
           const object = {
             url: image.uri,
             };             
           return object;
       });
+    
+      const derived = this.props.allpois.find(item => item.id === poi.id).derived;
+
     
       return (
          
@@ -54,7 +63,21 @@ render() {
            
           
             <View style = {styles.propContainer}>
-               <View style = {styles.rateContainer}>
+                <Text>from trip by {poi.author} </Text>    
+            </View>
+
+          <Button
+                    onPress={() => this.addToTrip(poi.id)}
+                    backgroundColor='#03A9F4'
+                    buttonStyle={{borderRadius: 0, marginLeft: 0, marginRight: 0, marginBottom: 0}}
+                    title='Add to plan' style={{marginTop: 20}}/>
+
+            <TouchableOpacity onPress={() => this._toggleModal(true)}>
+                
+                <Card image={poi.images[0]} >
+              
+                
+                <View style = {styles.rateContainer}>
                     <StarRating
                     disabled={true}
                     maxStars={5}
@@ -66,21 +89,8 @@ render() {
                     fullStarColor={poi.pinColor}
                     starSize={20}
                     />
-                    <Text style={{fontFamily: 'Helvetica Neue'}}>/{poi.derived}</Text>
+                    <Text style={{fontFamily: 'Helvetica Neue'}}>/{derived}</Text>
                 </View>
-                <Text>from trip by {poi.author} </Text>    
-            </View>
-
-          <Button
-                    onPress={() => this.addToTrip(poi)}
-                    backgroundColor='#03A9F4'
-                    buttonStyle={{borderRadius: 0, marginLeft: 0, marginRight: 0, marginBottom: 0}}
-                    title='Add to plan' style={{marginTop: 20}}/>
-
-            <TouchableOpacity onPress={() => this._toggleModal(true)}>
-                
-                <Card image={poi.images[0]} >
-              
                 <Text style={{marginBottom: 10}}>
                     {poi.text}
                 </Text>
@@ -101,6 +111,18 @@ render() {
     );
   }
   
+}
+
+function mapDispatchToProps(dispatch, props) {
+  return {
+    addPlan: (id) => dispatch(addPlanPOI(id)),
+  };
+}
+
+function mapStateToProps(storeState) {
+  return {
+    allpois: storeState.allpois,
+   };
 }
 
 const styles = StyleSheet.create({
@@ -128,3 +150,5 @@ const styles = StyleSheet.create({
   rating: {
   }
 });
+
+export default connect(mapStateToProps, mapDispatchToProps)(POI);

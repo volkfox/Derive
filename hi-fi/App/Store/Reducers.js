@@ -35,6 +35,7 @@ export function reducer(state = initialStoreState, action) {
         
   }
     
+  // wrong! fix it
   if (action.type === CREATE_TRIP) {
     return {
       alltrips: [
@@ -54,14 +55,22 @@ export function reducer(state = initialStoreState, action) {
     return state;
         
   }
-    
+
+  // push poi into plan, add derived counter
   if (action.type === ADD_PLAN_POI) {
-    return {
+      
+    // avoid dups
+    if (state.plannedTrip.find(item => item.poi===action.poiID)) return state;
+      let poi = state.allpois.find(item =>  item.id === action.poiID);
+      if (!poi) return state;
+      const pois = state.allpois.filter(item =>  item.id !== action.poiID);
+      poi.derived++;
+     
+     return Object.assign({}, state, {
         plannedTrip: [
-        action.poi,
+        {notes: '', wantRating: 0, poi: action.poiID},
         ...state.plannedTrip,
-      ],
-  }
+      ], allpois: [poi, ...pois,]});
   }
     
   // need to find poi by id and delete
@@ -69,6 +78,7 @@ export function reducer(state = initialStoreState, action) {
     return state;
         
   }
-    
+  
+   // kitchen sink
   return state;
 }
