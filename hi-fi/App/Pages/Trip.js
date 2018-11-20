@@ -6,7 +6,7 @@ import { Icon } from 'react-native-elements';
 import ImageViewer from 'react-native-image-zoom-viewer';
 import StarRating from 'react-native-star-rating';
 import { connect } from 'react-redux';
-import { MapView, Marker} from 'expo';
+import { MapView, Marker, Polyline} from 'expo';
 
 import { addPlanPOI, delPlanPOI, rateTrip } from '../Store/Actions';
 import { Images, Colors, Metrics} from '../Themes';
@@ -219,6 +219,12 @@ render() {
               onPress={e => this.setState({activeMarker: e.nativeEvent})}
           />
         ))}
+        <MapView.Polyline
+             coordinates={pois.map(item => ({latitude: item.coordinate.latitude, longitude: item.coordinate.longitude}))}
+             strokeColor="#000" // fallback for when `strokeColors` is not supported by the map-provider
+             strokeColors={pois.map(item => item.pinColor)}
+             strokeWidth={2}
+           />
       </MapView>
     }
 
