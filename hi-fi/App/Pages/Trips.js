@@ -262,6 +262,7 @@ componentDidMount() {
                 pinColor={marker.pinColor}
                 onCalloutPress={e => this.navigateToMarker(e.nativeEvent)}
                 onPress={e => this.setState({activeMarker: e.nativeEvent})}
+                onSelect={e => this.setState({activeMarker: e.nativeEvent})}
 
             />
           ))}

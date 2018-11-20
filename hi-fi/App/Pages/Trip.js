@@ -76,8 +76,9 @@ toggleFilter = async (key) => {
 }
 
 navigateToMarker = (event) => {
-
+        console.log(this.state.activeMarker);
         if (!this.state.activeMarker || !this.state.activeMarker.coordinate) return;
+
         const poi = this.props.allpois.find(marker =>
   this.state.activeMarker.coordinate.latitude === marker.coordinate.latitude &&
   this.state.activeMarker.coordinate.longitude === marker.coordinate.longitude);
@@ -217,6 +218,7 @@ render() {
               pinColor={marker.pinColor}
               onCalloutPress={e => this.navigateToMarker(e.nativeEvent)}
               onPress={e => this.setState({activeMarker: e.nativeEvent})}
+              onSelect={e => this.setState({activeMarker: e.nativeEvent})}
           />
         ))}
         <MapView.Polyline
