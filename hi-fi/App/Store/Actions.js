@@ -17,6 +17,7 @@ export function createTrip(trip, pois) {
 export function rateTrip(tripID, rating) {
   return {
     type: RATE_TRIP,
+      tripID: tripID,
       rating: rating,
   };
 }
@@ -28,10 +29,10 @@ export function addPlanPOI(poiID) {
   };
 }
 
-export function delPlanPOI(poi) {
+export function delPlanPOI(poiID) {
   return {
     type: DEL_PLAN_POI,
-    poi: poi,
+    poiID: poiID,
   };
 }
 
