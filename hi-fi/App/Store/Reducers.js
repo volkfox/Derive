@@ -1,4 +1,4 @@
-import { CREATE_TRIP, RATE_TRIP, ADD_PLAN_POI, DEL_PLAN_POI, RESTORE_STATE, TOGGLE_ONBOARD } from './Actions';
+import { CREATE_TRIP, RATE_TRIP, ADD_PLAN_POI, DEL_PLAN_POI, RATE_PLAN_POI, RESTORE_STATE, TOGGLE_ONBOARD } from './Actions';
 import {Colors} from '../Themes'
 const initialStoreState = {
 
@@ -18,7 +18,7 @@ const initialStoreState = {
   alltrips: [{id: "1", author: 'Jim Piech', date: {}, title: "My Trip to Stanford", pois: ["1","2"], communityRating: 3, derived: 11},
             {id: "2", author: 'Pete Sahami', date: {}, title: "Random Walk", pois: ["3","4","5","6"], communityRating: 2, derived: 22}],
 
-  plannedTrip: [{notes: '', wantRating: 2, poi: "1"}, {notes: '', wantRating: 2, poi: "2"}],
+  plannedTrip: [{notes: '', importance: 2, poi: "1"}, {notes: '', importance: 2, poi: "2"}],
   needOnboarding: 'false',
 };
 
@@ -79,7 +79,7 @@ export function reducer(state = initialStoreState, action) {
     // modify both plannedTrip and derived status
      return Object.assign({}, state, {
         plannedTrip: [
-        {notes: '', wantRating: 0, poi: action.poiID},
+        {notes: '', importance: poi.authorRating, poi: action.poiID},
         ...state.plannedTrip,
       ], allpois: [poi, ...otherPois,]});
   }
@@ -94,13 +94,29 @@ export function reducer(state = initialStoreState, action) {
     // sanity check
     if (!poi) return state;
     poi.derived--;
-    
+
     const otherPois = state.allpois.filter(item =>  item.id !== action.poiID);
 
 
     // modify both plannedTrip and derived status
      return Object.assign({}, state, {
         plannedTrip: newPlan, allpois: [poi, ...otherPois,]});
+  }
+
+
+  if (action.type === RATE_PLAN_POI) {
+
+    // sanity check
+    if (!state.plannedTrip.find(item => item.poi===action.poiID)) return state;
+    // updated plan
+    const otherPois = state.plannedTrip.filter(item => item.poi!==action.poiID);
+    const poi = state.plannedTrip.find(item =>  item.poi === action.poiID);
+    // sanity check
+    if (!poi) return state;
+    poi.importance = action.rating;
+
+     return Object.assign({}, state, {
+        plannedTrip: [poi, ...otherPois,]});
   }
 
    // kitchen sink
