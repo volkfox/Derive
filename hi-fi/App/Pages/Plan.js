@@ -19,6 +19,7 @@ class Plan extends React.Component {
 constructor(props) {
       super(props);
       this.mapRef = null;
+      this.rowRef = null;
 }
 
 state = {
@@ -27,8 +28,10 @@ state = {
       foodFilter: true,
       todoFilter: true,
       activeMarker: {},
-      note: "",
+
    }
+
+
 
    static navigationOptions = ({navigation}) => {
       return ({
@@ -135,7 +138,7 @@ navigateToMarker = (event) => {
     );
     const pois = this.props.allpois.filter(item => poiSet.has(item.id)&&((this.state.sleepFilter && item.category==='sleep') || (this.state.foodFilter && item.category==='food') || (this.state.todoFilter && item.category==='todo')));
 
-    let rowRef = null;
+
     //console.log(`Planned trip pois: ${pois}`);
     return (
         <SafeAreaView style={styles.container}>
@@ -152,19 +155,22 @@ navigateToMarker = (event) => {
             <SwipeListView
 
     // Grab reference to this row
-
+                   style={styles.listview}
+                   friction = {7}
                    onRowOpen={(rowKey, rowMap, toValue) => {rowRef = rowMap[rowKey];}}
                    useFlatList
                    data={pois}
+                   extraData={this.state}
                    keyExtractor = { (item) => item.id }
                    leftOpenValue={Metrics.screenWidth*0.6}
                    rightOpenValue={-75}
                    previewRowKey={pois[0].id}
+                   previewOpenValue={-10}
 
                    renderItem={ (element, rowMap) => {
                      const item = element.item;
                      return (
-                     <TouchableWithoutFeedback onLongPress={() => this.props.navigation.navigate('POI',{poi: item})}  >
+                     <TouchableWithoutFeedback onPress={() => (rowRef && rowRef.closeRow())} onLongPress={() => this.props.navigation.navigate('POI',{poi: item})}  >
                            <Card title={item.header} titleStyle={styles.cardTitle} image={item.images[0]}>
 
                            <View style = {styles.rateContainer}>
@@ -172,7 +178,10 @@ navigateToMarker = (event) => {
                                 disabled={false}
                                 maxStars={5}
                                 rating={this.props.plannedTrip.find(element => element.poi===item.id).importance}
-                                selectedStar={(rating) => this.props.ratePOI(item.id, rating)}
+                                selectedStar={(rating) => {
+                                    this.props.ratePOI(item.id, rating);
+                                  }
+                                }
                                 emptyStar={'ios-heart-empty'}
                                 fullStar={'ios-heart'}
                                 halfStar={'ios-heart-half'}
@@ -193,17 +202,16 @@ navigateToMarker = (event) => {
                                editable = {true}
                                defaultValue = {this.props.plannedTrip.find(element => element.poi===data.item.id).notes }
                                placeholder = {'Type a note here'}
-                               onChangeText={(text) => this.setState({note: text})}
+                               onChangeText={(text) => this.note=text}
+                               onFocus={() => this.note=this.props.plannedTrip.find(element => element.poi===data.item.id).notes}
                                maxLength = {40}
                                multiline = {true}
                                numberOfLines = {10}
                                style = {styles.notes}
                                // possible rate condition to this.state.note
                                onBlur = { () => {
-                                 const trip = this.props.plannedTrip.find(element => element.poi===data.item.id);
-                                 console.log(trip.notes);
-                                 this.props.changeNote(data.item.id, this.state.note);
-                                 this.setState({note: ''});
+                                 this.props.changeNote(data.item.id, this.note);
+                                 this.note='';
                                  rowRef.closeRow()}
                                }
                               />
@@ -211,13 +219,18 @@ navigateToMarker = (event) => {
                               <View style={styles.buttonColumn} >
                                 <Button
                                     onPress={() => rowRef.closeRow() }
-                                    backgroundColor='#03A9F4'
-                                    buttonStyle={{borderRadius: 0, marginLeft: 0, marginRight: 0, marginBottom: 20}}
+                                    backgroundColor={Colors.buttonBlue}
+                                    buttonStyle={styles.cardButton}
                                     title='Move ▲' style={{marginTop: 20}} />
+                                <Button
+                                           onPress={() => this.props.delPlan(data.item.id)}
+                                           backgroundColor={Colors.buttonRed}
+                                           buttonStyle={styles.cardButton}
+                                           title='Drop' style={{marginTop: 20}} />
                                  <Button
                                         onPress={() => rowRef.closeRow() }
-                                        backgroundColor='#03A9F4'
-                                        buttonStyle={{borderRadius: 0, marginLeft: 0, marginRight: 0, marginBottom: 20}}
+                                        backgroundColor={Colors.buttonBlue}
+                                        buttonStyle={styles.cardButton}
                                         title='Move ▼' style={{marginTop: 20}} />
                               </View>
                        </View>
@@ -331,6 +344,10 @@ navigateToMarker = (event) => {
   },
   buttonColumn: {
     flexDirection: 'column',
+    justifyContent: 'space-between'
+  },
+  cardButton: {
+
   },
   cardTitle: {
     alignSelf: 'flex-start',
@@ -353,6 +370,9 @@ navigateToMarker = (event) => {
     marginBottom: 10,
     paddingLeft: 5,
     paddingRight: 5,
+  },
+  listview: {
+    marginBottom: 200,
   },
   map: {
     flex:1,
