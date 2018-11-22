@@ -14,6 +14,7 @@ class BrowseStart extends React.Component {
   constructor(props) {
     super(props);
 }
+ _isMounted = false;
 
 state = {
     location : {
@@ -21,19 +22,19 @@ state = {
         "lng": -122.1660756,
         },
         searchText: '',
-        inputTextColor: 'black', 
+        inputTextColor: 'black',
  }
- 
+
 static navigationOptions = ({navigation}) => {
-    
+
     return {
-        headerLeft: 
-            <Icon  
-                name="menu" 
-                size={30} 
+        headerLeft:
+            <Icon
+                name="menu"
+                size={30}
                 color="gray"
-                onPress={ () => 
-                         navigation.dispatch(DrawerActions.toggleDrawer())}   
+                onPress={ () =>
+                         navigation.dispatch(DrawerActions.toggleDrawer())}
             />,
     }
 };
@@ -45,7 +46,7 @@ _textStyle = function(options) {
 }
 
 runSearch = (data, details) => {
-    
+
     Keyboard.dismiss();
 
     if (!details.geometry.viewport) {
@@ -57,7 +58,7 @@ runSearch = (data, details) => {
         }
     }
     const description = details.description?details.description:details.formatted_address;
-    
+
     let startWithMap =  false;
     if (description == 'Current Location') startWithMap = true;
     // need push here?
@@ -71,7 +72,7 @@ _renderItem = ({item}) => {
    return (
 
    <TouchableOpacity style={styles.highlight} onPress={() => this.props.navigation.navigate('POI',{poi: item})}>
-        <Image style={styles.thumbnail} 
+        <Image style={styles.thumbnail}
             source={item.images[0]}
         />
     </TouchableOpacity>
@@ -94,42 +95,49 @@ _renderSeparator = () => {
   };
 
 componentDidMount() {
+   this._isMounted = true;
     navigator.geolocation.getCurrentPosition(
       (position) => {
-        this.setState({
+        // trying to prevent GPS setstate if moving off this screen early
+        this._isMounted && this.setState({
           location: {
                 lat: position.coords.latitude,
                 lng: position.coords.longitude,
                     }
         });
       },
-      (error) => this.setState({ error: error.message }),
+      (error) => console.log(error.message),
       { enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 },
     );
 }
 
+componentWillUnmount() {
+    this._isMounted = false;
+  }
+
+
 render() {
-      
+
       const {allpois} = this.props;
-      
-    
+
+
       return (
-          
+
         <SafeAreaView style={styles.container}>
-          
+
           <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-          
-          
-          <View style={styles.searchSection}>   
-            
+
+
+          <View style={styles.searchSection}>
+
            <GooglePlacesInput searchCallBack = {this.runSearch} location={this.state.location}/>
 
-          </View> 
+          </View>
           </TouchableWithoutFeedback>
 
           <View style={styles.teaser}>
 
-                <FlatList 
+                <FlatList
                     data={allpois}
                     extraData={allpois}
                     keyExtractor={this._keyExtractor}
@@ -141,7 +149,7 @@ render() {
   )}
                 />
          </View>
-      
+
       </SafeAreaView>
       );
 
@@ -162,14 +170,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#fff',
   },
-    
+
   searchIcon: {
     padding: 10,
     marginLeft: 10,
     marginRight: 10,
     marginTop: 5,
   },
-    
+
   searchSection: {
     flex: 1,
     flexDirection: 'row',
@@ -180,7 +188,7 @@ const styles = StyleSheet.create({
 },
   searchField: {
         height: 50,
-        borderColor: 'transparent', 
+        borderColor: 'transparent',
         borderWidth: 1,
         borderRadius: 8,
         backgroundColor: 'rgb(240,240,240)',

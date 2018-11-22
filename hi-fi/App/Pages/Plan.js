@@ -1,6 +1,6 @@
 
 import React from 'react';
-import {  Modal, StyleSheet, Text, View, TextInput, ScrollView, Switch, TouchableOpacity, SafeAreaView, Linking, Image } from 'react-native';
+import {  Modal, StyleSheet, Text, View, TextInput, ScrollView, Switch, TouchableOpacity, TouchableWithoutFeedback, SafeAreaView, Linking, Image, KeyboardAvoidingView } from 'react-native';
 import { Card, Button } from 'react-native-elements';
 import { Icon } from 'react-native-elements';
 import ImageViewer from 'react-native-image-zoom-viewer';
@@ -8,8 +8,10 @@ import StarRating from 'react-native-star-rating';
 import { connect } from 'react-redux';
 import { MapView, Marker, Polyline} from 'expo';
 import { DrawerActions } from 'react-navigation';
+import { SwipeListView } from 'react-native-swipe-list-view';
+import {uid} from 'react-uid';
 
-import { addPlanPOI, delPlanPOI, ratePlanPOI } from '../Store/Actions';
+import { changeNotePOI, delPlanPOI, ratePlanPOI } from '../Store/Actions';
 import { Images, Colors, Metrics} from '../Themes';
 
 class Plan extends React.Component {
@@ -25,6 +27,7 @@ state = {
       foodFilter: true,
       todoFilter: true,
       activeMarker: {},
+      note: "",
    }
 
    static navigationOptions = ({navigation}) => {
@@ -40,6 +43,7 @@ state = {
                   />,
               })
 }
+
 
 
 toggleShowMap = () =>
@@ -66,7 +70,7 @@ toggleFilter = async (key) => {
    }
 
 navigateToMarker = (event) => {
-           console.log(this.state.activeMarker);
+           //console.log(this.state.activeMarker);
            if (!this.state.activeMarker || !this.state.activeMarker.coordinate) return;
 
            const poi = this.props.allpois.find(marker =>
@@ -131,6 +135,7 @@ navigateToMarker = (event) => {
     );
     const pois = this.props.allpois.filter(item => poiSet.has(item.id)&&((this.state.sleepFilter && item.category==='sleep') || (this.state.foodFilter && item.category==='food') || (this.state.todoFilter && item.category==='todo')));
 
+    let rowRef = null;
     //console.log(`Planned trip pois: ${pois}`);
     return (
         <SafeAreaView style={styles.container}>
@@ -143,58 +148,84 @@ navigateToMarker = (event) => {
 
          </View>
 
-         {!this.state.showMap && <ScrollView style ={styles.scroll}>
+         {!this.state.showMap && <ScrollView style={styles.scroll}>
+            <SwipeListView
 
-              {pois.map(item => {
+    // Grab reference to this row
 
-                   return (
-                       <TouchableOpacity key={item.id} onPress={() => this.props.navigation.navigate('POI',{poi: item})}  >
+                   onRowOpen={(rowKey, rowMap, toValue) => {rowRef = rowMap[rowKey];}}
+                   useFlatList
+                   data={pois}
+                   keyExtractor = { (item) => item.id }
+                   leftOpenValue={Metrics.screenWidth*0.6}
+                   rightOpenValue={-75}
+                   previewRowKey={pois[0].id}
 
-                         <Card title={item.header} image={item.images[0]}>
+                   renderItem={ (element, rowMap) => {
+                     const item = element.item;
+                     return (
+                     <TouchableWithoutFeedback onLongPress={() => this.props.navigation.navigate('POI',{poi: item})}  >
+                           <Card title={item.header} titleStyle={styles.cardTitle} image={item.images[0]}>
 
-                         <Text style={{marginBottom: 10}}>
-                             { this.props.plannedTrip.find(element => element.poi===item.id).notes }
-                         </Text>
+                           <View style = {styles.rateContainer}>
+                                <StarRating
+                                disabled={false}
+                                maxStars={5}
+                                rating={this.props.plannedTrip.find(element => element.poi===item.id).importance}
+                                selectedStar={(rating) => this.props.ratePOI(item.id, rating)}
+                                emptyStar={'ios-heart-empty'}
+                                fullStar={'ios-heart'}
+                                halfStar={'ios-heart-half'}
+                                iconSet={'Ionicons'}
+                                fullStarColor={Colors.bloodOrange}
+                                starSize={20}
+                                />
+                            </View>
 
-                         <View style = {styles.rateContainer}>
-                              <StarRating
-                              disabled={false}
-                              maxStars={5}
-                              rating={this.props.plannedTrip.find(element => element.poi===item.id).importance}
-                              selectedStar={(rating) => this.props.ratePOI(item.id, rating)}
-                              emptyStar={'ios-heart-empty'}
-                              fullStar={'ios-heart'}
-                              halfStar={'ios-heart-half'}
-                              iconSet={'Ionicons'}
-                              fullStarColor={Colors.bloodOrange}
-                              starSize={20}
+                           </Card>
+                        </TouchableWithoutFeedback>
+                   )}}
+                   renderHiddenItem={ (data, rowMap) => (
+                       <View style={styles.rowBack} >
+
+                            <TextInput
+                               {...this.props}
+                               editable = {true}
+                               defaultValue = {this.props.plannedTrip.find(element => element.poi===data.item.id).notes }
+                               placeholder = {'Type a note here'}
+                               onChangeText={(text) => this.setState({note: text})}
+                               maxLength = {40}
+                               multiline = {true}
+                               numberOfLines = {10}
+                               style = {styles.notes}
+                               // possible rate condition to this.state.note
+                               onBlur = { () => {
+                                 const trip = this.props.plannedTrip.find(element => element.poi===data.item.id);
+                                 console.log(trip.notes);
+                                 this.props.changeNote(data.item.id, this.state.note);
+                                 this.setState({note: ''});
+                                 rowRef.closeRow()}
+                               }
                               />
-                              <View style = {styles.buttonrow} >
-                              <Button
-                                         onPress={() => console.log("pressed")}
-                                         backgroundColor='#F44E03'
-                                         buttonStyle={{borderRadius: 0, marginLeft: 0, marginRight: 0, marginBottom: 20}}
-                                         title='Notes' style={{marginTop: 20}} />
 
+                              <View style={styles.buttonColumn} >
                                 <Button
-                                          onPress={() => console.log("pressed")}
-                                          backgroundColor='#F44E03'
-                                          buttonStyle={{borderRadius: 0, marginLeft: 0, marginRight: 0, marginBottom: 20}}
-                                          title='Move up' style={{marginTop: 20}} />
-                                <Button
-                                          onPress={() => console.log("pressed")}
-                                          backgroundColor='#F44E03'
-                                          buttonStyle={{borderRadius: 0, marginLeft: 0, marginRight: 0, marginBottom: 20}}
-                                          title='Completed' style={{marginTop: 20}} />
+                                    onPress={() => rowRef.closeRow() }
+                                    backgroundColor='#03A9F4'
+                                    buttonStyle={{borderRadius: 0, marginLeft: 0, marginRight: 0, marginBottom: 20}}
+                                    title='Move ▲' style={{marginTop: 20}} />
+                                 <Button
+                                        onPress={() => rowRef.closeRow() }
+                                        backgroundColor='#03A9F4'
+                                        buttonStyle={{borderRadius: 0, marginLeft: 0, marginRight: 0, marginBottom: 20}}
+                                        title='Move ▼' style={{marginTop: 20}} />
+                              </View>
+                       </View>
+                   )}
 
-                                </View>
-                          </View>
+              />
 
-                         </Card>
-                     </TouchableOpacity>
-               )})}
-
-          </ScrollView>
+              </ScrollView>
         }
 
 
@@ -242,7 +273,7 @@ navigateToMarker = (event) => {
 
   function mapDispatchToProps(dispatch, props) {
     return {
-      addPlan: (id) => dispatch(addPlanPOI(id)),
+      changeNote: (id, note) => dispatch(changeNotePOI(id, note)),
       delPlan: (id) => dispatch(delPlanPOI(id)),
       ratePOI: (id, rating) => dispatch(ratePlanPOI(id, rating)),
     };
@@ -297,6 +328,31 @@ navigateToMarker = (event) => {
     flex:1,
     flexDirection: 'row',
     justifyContent: 'space-between'
+  },
+  buttonColumn: {
+    flexDirection: 'column',
+  },
+  cardTitle: {
+    alignSelf: 'flex-start',
+    marginLeft: 10,
+  },
+  rowBack: {
+		alignItems: 'center',
+		backgroundColor: '#DDD',
+		flex: 1,
+		flexDirection: 'row',
+		justifyContent: 'space-between',
+		paddingLeft: 10,
+    paddingRight: 5,
+	},
+  notes: {
+    flex:1,
+    backgroundColor: '#FFFFA5',
+    alignSelf: 'stretch',
+    marginTop: 10,
+    marginBottom: 10,
+    paddingLeft: 5,
+    paddingRight: 5,
   },
   map: {
     flex:1,

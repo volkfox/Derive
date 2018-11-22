@@ -1,4 +1,4 @@
-import { CREATE_TRIP, RATE_TRIP, ADD_PLAN_POI, DEL_PLAN_POI, RATE_PLAN_POI, RESTORE_STATE, TOGGLE_ONBOARD } from './Actions';
+import { CREATE_TRIP, RATE_TRIP, ADD_PLAN_POI, DEL_PLAN_POI, CHANGE_NOTE_POI, RATE_PLAN_POI, RESTORE_STATE, TOGGLE_ONBOARD } from './Actions';
 import {Colors} from '../Themes'
 const initialStoreState = {
 
@@ -82,6 +82,24 @@ export function reducer(state = initialStoreState, action) {
         {notes: '', importance: poi.authorRating, poi: action.poiID},
         ...state.plannedTrip,
       ], allpois: [poi, ...otherPois,]});
+  }
+
+  if (action.type === CHANGE_NOTE_POI) {
+
+    // avoid spurious requests
+
+    const notedPOI = state.plannedTrip.find(item => item.poi===action.poiID);
+    if (!notedPOI) return state;
+    notedPOI.notes = action.note;
+
+    const otherTripPois = state.plannedTrip.filter(item =>  item.poi !== action.poiID);
+
+    // modify both plannedTrip and derived status
+     return Object.assign({}, state, {
+        plannedTrip: [
+        notedPOI,
+        ...otherTripPois,
+      ]});
   }
 
   if (action.type === DEL_PLAN_POI) {
