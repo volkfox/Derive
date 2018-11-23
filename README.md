@@ -1,9 +1,9 @@
 ## Hi-Fi project featurelist
 
-Top navigation (Explore, Plan, Report) is done via edge swipe  (left-right direction, also duplicated as hamburger menu).
+Top navigation (**Explore, Plan, Report**) is done via edge swipe  (left-right direction, also duplicated as hamburger menu).
 
 ### Explore
-1. *Main* Explore screen.
+1. *Main* screen.
    * Search box with auto-propmt for arbitrary geographic destination
    * Pre-configured 'Current Location' and 'Stanford' destinations popping up when clicking search box
    * Search is activated by hitting Enter on keyboard and leads into *Trips* screen
@@ -31,33 +31,32 @@ Top navigation (Explore, Plan, Report) is done via edge swipe  (left-right direc
     * Author's own POI rank (not changeable by the viewers)
     
 ### Plan 
- 1. *Main* plan screen (list and map representations, defaults to list view)
- 2.  Private importance (heart) POI ranking
- 3.  Ability to disable a POI
- 4.  Swiping POI right allows to fill a notes post-it
- 5.  Swiping POI left allows to drop, or move POI up/down
- 6.  Single-clicking POI card closes open row
- 7.  Long clicking POI card leads into *POI* screen
- 8.  Map representation uses same features as other map screens plus ignores disabled POIs.
+ 1. *Main* screen (list and map representations, defaults to list view)
+     *  Private importance (heart) POI ranking
+     *  Icon to disable a planned POI
+     *  Swiping POI right allows to fill a notes post-it
+     *  Swiping POI left allows to drop, or move POI up/down
+     *  Single-clicking POI card closes open row
+     *  Long clicking POI card leads into *POI* screen
+     *  Map representation uses same features as other map screens plus ignores disabled POIs.
  
-Project limitations:
+**Project limitations:**
   * React Native platform
   * IOS only
   * No support for multiple planned trips
   * Reporting one trip at a time
   * No editing interface for saved reports
-  * No commenting or other social features
-  * No indications of time of trip
+  * No commenting interface (or other social features)
+  * No indications of the time of the trip
   
-  Redux Database Schema by example:
-  
- allpois: [
+  **Redux Database Schema by example:**
+```  
+allpois: [
       {id:"1", category: 'food', header: 'Rays Grill', text: 'blah blah blah', images: [{uri: 'https://s3-us-west-2.amazonaws.com/tablehero.qa.images/wZ4IDzw0yfc/2e6fea31fe39ea79a459bb13d5ce7cac6f5d0d0a.jpg'}], coordinate:{latitude: 37.423659, longitude: -122.158492}, authorRating: 3, tripID:"1", pinColor: Colors.food3, derived: 1, author: 'Jim Piech'}]
       
- alltrips: [{id: "1", author: 'Jim Piech', date: {}, title: "My Trip to Stanford", pois: ["1","2"], communityRating: 3, derived: 11,}]
+alltrips: [{id: "1", author: 'Jim Piech', date: {}, title: "My Trip to Stanford", pois: ["1","2"], communityRating: 3, derived: 11,}]
             
-
- plannedTrip: [{notes: '', importance: 2, poi: "1", active: 'true'}, {notes: '', importance: 2, poi: "2", active: 'true'}]
-  
+plannedTrip: [{notes: '', importance: 2, poi: "1", active: 'true'}, {notes: '', importance: 2, poi: "2", active: 'true'}]
+ ```
   
   
