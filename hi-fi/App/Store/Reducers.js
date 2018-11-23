@@ -86,20 +86,14 @@ export function reducer(state = initialStoreState, action) {
 
   if (action.type === CHANGE_NOTE_POI) {
 
+    let trip = state.plannedTrip;
     // avoid spurious requests
-
-    const notedPOI = state.plannedTrip.find(item => item.poi===action.poiID);
+    const notedPOI = trip.find(item => item.poi===action.poiID);
     if (!notedPOI) return state;
     notedPOI.notes = action.note;
 
-    const otherTripPois = state.plannedTrip.filter(item =>  item.poi !== action.poiID);
-
-    // modify both plannedTrip and derived status
      return Object.assign({}, state, {
-        plannedTrip: [
-        notedPOI,
-        ...otherTripPois,
-      ]});
+        plannedTrip: trip});
   }
 
   if (action.type === DEL_PLAN_POI) {
@@ -124,17 +118,16 @@ export function reducer(state = initialStoreState, action) {
 
   if (action.type === RATE_PLAN_POI) {
 
-    // sanity check
-    if (!state.plannedTrip.find(item => item.poi===action.poiID)) return state;
-    // updated plan
-    const otherPois = state.plannedTrip.filter(item => item.poi!==action.poiID);
-    const poi = state.plannedTrip.find(item =>  item.poi === action.poiID);
+    let trip = state.plannedTrip;
+    //const otherPois = state.plannedTrip.filter(item => item.poi!==action.poiID);
+    const poi = trip.find(item =>  item.poi === action.poiID);
     // sanity check
     if (!poi) return state;
+
     poi.importance = action.rating;
 
      return Object.assign({}, state, {
-        plannedTrip: [poi, ...otherPois,]});
+        plannedTrip: trip});
   }
 
    // kitchen sink

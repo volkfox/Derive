@@ -59,9 +59,8 @@ render() {
       });
 
       const derived = this.props.allpois.find(item => item.id === poi.id).derived;
-
       const planned = this.props.plannedTrip.find(item => item.poi  === poi.id);
-      console.log(planned);
+
       return (
 
         <SafeAreaView styles={styles.container}>

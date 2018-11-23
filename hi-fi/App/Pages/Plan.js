@@ -28,7 +28,7 @@ state = {
       foodFilter: true,
       todoFilter: true,
       activeMarker: {},
-
+      changeMarker: {},
    }
 
 
@@ -131,6 +131,7 @@ navigateToMarker = (event) => {
 
     const poiSet = new Set(trip.map(item => item.poi));
 
+
     if (!poiSet.size) return (
         <View style={styles.bummer} >
             <Text> Bummer! {"\n\n"} You did not add anything to planner yet. {"\n"} Try exploring more places. </Text>
@@ -154,32 +155,38 @@ navigateToMarker = (event) => {
          {!this.state.showMap && <ScrollView style={styles.scroll}>
             <SwipeListView
 
-    // Grab reference to this row
+            // items are planned trip entries
                    style={styles.listview}
                    friction = {7}
-                   onRowOpen={(rowKey, rowMap, toValue) => {rowRef = rowMap[rowKey];}}
+                   onRowOpen={(rowKey, rowMap, toValue) => {this.rowRef = rowMap[rowKey];}}
                    useFlatList
-                   data={pois}
-                   extraData={this.state}
-                   keyExtractor = { (item) => item.id }
+                   data={trip}
+                   keyExtractor = { (item) => item.poi+item.importance }
                    leftOpenValue={Metrics.screenWidth*0.6}
                    rightOpenValue={-75}
-                   previewRowKey={pois[0].id}
+                   previewRowKey={trip[0].poi+trip[0].importance}
                    previewOpenValue={-10}
 
                    renderItem={ (element, rowMap) => {
+                     // this is poi entry in the trip
                      const item = element.item;
+                     const poi = this.props.allpois.find(element => element.id===item.poi);
+                     if (!poi) console.log("bummer! Trip refers to unknown POI.");
+
                      return (
-                     <TouchableWithoutFeedback onPress={() => (rowRef && rowRef.closeRow())} onLongPress={() => this.props.navigation.navigate('POI',{poi: item})}  >
-                           <Card title={item.header} titleStyle={styles.cardTitle} image={item.images[0]}>
+                     <TouchableWithoutFeedback onPress={() => (this.rowRef && this.rowRef.closeRow())} onLongPress={() => this.props.navigation.navigate('POI',{poi: poi})}  >
+                           <Card title={poi.header} titleStyle={styles.cardTitle} image={poi.images[0]} featuredSubtitle={""+item.importance}>
 
                            <View style = {styles.rateContainer}>
                                 <StarRating
+
                                 disabled={false}
                                 maxStars={5}
-                                rating={this.props.plannedTrip.find(element => element.poi===item.id).importance}
+                                rating={item.importance}
                                 selectedStar={(rating) => {
-                                    this.props.ratePOI(item.id, rating);
+                                    this.props.ratePOI(poi.id, rating);
+                                    let changeMarker = Object.assign({}, this.state.changeMarker);
+                                    this.setState({ changeMarker: changeMarker });
                                   }
                                 }
                                 emptyStar={'ios-heart-empty'}
@@ -200,35 +207,35 @@ navigateToMarker = (event) => {
                             <TextInput
                                {...this.props}
                                editable = {true}
-                               defaultValue = {this.props.plannedTrip.find(element => element.poi===data.item.id).notes }
+                               defaultValue = {data.item.notes }
                                placeholder = {'Type a note here'}
                                onChangeText={(text) => this.note=text}
-                               onFocus={() => this.note=this.props.plannedTrip.find(element => element.poi===data.item.id).notes}
+                               onFocus={() => this.note=data.item.notes}
                                maxLength = {40}
                                multiline = {true}
                                numberOfLines = {10}
                                style = {styles.notes}
                                // possible rate condition to this.state.note
                                onBlur = { () => {
-                                 this.props.changeNote(data.item.id, this.note);
+                                 this.props.changeNote(data.item.poi, this.note);
                                  this.note='';
-                                 rowRef.closeRow()}
+                                 this.rowRef.closeRow()}
                                }
                               />
 
                               <View style={styles.buttonColumn} >
                                 <Button
-                                    onPress={() => rowRef.closeRow() }
+                                    onPress={() => this.rowRef.closeRow() }
                                     backgroundColor={Colors.buttonBlue}
                                     buttonStyle={styles.cardButton}
                                     title='Move ▲' style={{marginTop: 20}} />
                                 <Button
-                                           onPress={() => this.props.delPlan(data.item.id)}
+                                           onPress={() => this.props.delPlan(data.item.poi)}
                                            backgroundColor={Colors.buttonRed}
                                            buttonStyle={styles.cardButton}
                                            title='Drop' style={{marginTop: 20}} />
                                  <Button
-                                        onPress={() => rowRef.closeRow() }
+                                        onPress={() => this.rowRef.closeRow() }
                                         backgroundColor={Colors.buttonBlue}
                                         buttonStyle={styles.cardButton}
                                         title='Move ▼' style={{marginTop: 20}} />
