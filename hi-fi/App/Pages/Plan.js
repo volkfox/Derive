@@ -11,7 +11,7 @@ import { DrawerActions } from 'react-navigation';
 import { SwipeListView } from 'react-native-swipe-list-view';
 import {uid} from 'react-uid';
 
-import { changeNotePOI, delPlanPOI, ratePlanPOI, toggleActive } from '../Store/Actions';
+import { changeNotePOI, delPlanPOI, ratePlanPOI, toggleActive, movePOI } from '../Store/Actions';
 import { Images, Colors, Metrics} from '../Themes';
 
 class Plan extends React.Component {
@@ -253,17 +253,29 @@ navigateToMarker = (event) => {
 
                               <View style={styles.buttonColumn} >
                                 <Button
-                                    onPress={() => this.rowRef.closeRow() }
-                                    backgroundColor={Colors.buttonBlue}
-                                    buttonStyle={styles.cardButton}
-                                    title='Move ▲' style={{marginTop: 20}} />
+                                          onPress={() => {
+                                            this.rowRef.closeRow();
+                                            this.props.shiftPOI(data.item.poi, 'up');
+                                            let changeMarker = Object.assign({}, this.state.changeMarker);
+                                            this.setState({ changeMarker: changeMarker });
+                                            }
+                                          }
+                                          backgroundColor={Colors.buttonBlue}
+                                          buttonStyle={styles.cardButton}
+                                          title='Move ▲' style={{marginTop: 20}} />
                                 <Button
                                            onPress={() => this.props.delPlan(data.item.poi)}
                                            backgroundColor={Colors.buttonRed}
                                            buttonStyle={styles.cardButton}
                                            title='Drop' style={{marginTop: 20}} />
                                  <Button
-                                        onPress={() => this.rowRef.closeRow() }
+                                         onPress={() => {
+                                           this.rowRef.closeRow();
+                                           this.props.shiftPOI(data.item.poi, 'down');
+                                           let changeMarker = Object.assign({}, this.state.changeMarker);
+                                           this.setState({ changeMarker: changeMarker });
+                                           }
+                                         }
                                         backgroundColor={Colors.buttonBlue}
                                         buttonStyle={styles.cardButton}
                                         title='Move ▼' style={{marginTop: 20}} />
@@ -324,6 +336,7 @@ navigateToMarker = (event) => {
       changeNote: (id, note) => dispatch(changeNotePOI(id, note)),
       delPlan: (id) => dispatch(delPlanPOI(id)),
       ratePOI: (id, rating) => dispatch(ratePlanPOI(id, rating)),
+      shiftPOI: (id, direction) => dispatch(movePOI(id, direction)),
       toggleState: (id, state) => dispatch(toggleActive(id, state)),
     };
   }

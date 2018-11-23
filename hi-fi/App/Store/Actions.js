@@ -6,6 +6,8 @@ export const DEL_PLAN_POI = 'DEL_PLAN_POI';
 export const RATE_PLAN_POI = 'RATE_PLAN_POI';
 export const CHANGE_NOTE_POI = 'CHANGE_NOTE_POI';
 export const TOGGLE_ACTIVE = 'TOGGLE_ACTIVE';
+export const MOVE_POI  = 'MOVE_POI';
+
 export const TOGGLE_ONBOARD = 'TOGGLE_ONBOARD';
 export const RESTORE_STATE = 'RESTORE_STATE';
 
@@ -62,6 +64,14 @@ export function toggleActive(poiID, newstate) {
     type: TOGGLE_ACTIVE,
     poiID: poiID,
     newstate: newstate,
+  };
+}
+
+export function movePOI(poiID, direction) {
+  return {
+    type: MOVE_POI,
+    poiID: poiID,
+    direction: direction,
   };
 }
 

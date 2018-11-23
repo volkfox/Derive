@@ -1,4 +1,4 @@
-import { CREATE_TRIP, RATE_TRIP, ADD_PLAN_POI, DEL_PLAN_POI, CHANGE_NOTE_POI, RATE_PLAN_POI, TOGGLE_ACTIVE, RESTORE_STATE, TOGGLE_ONBOARD } from './Actions';
+import { CREATE_TRIP, RATE_TRIP, ADD_PLAN_POI, DEL_PLAN_POI, CHANGE_NOTE_POI, RATE_PLAN_POI, TOGGLE_ACTIVE, MOVE_POI, RESTORE_STATE, TOGGLE_ONBOARD } from './Actions';
 import {Colors} from '../Themes'
 const initialStoreState = {
 
@@ -103,6 +103,27 @@ export function reducer(state = initialStoreState, action) {
     const targetPOI = trip.find(item => item.poi===action.poiID);
     if (!targetPOI) return state;
     targetPOI.active = action.newstate;
+
+     return Object.assign({}, state, {
+        plannedTrip: trip});
+  }
+
+  if (action.type === MOVE_POI) {
+
+    let trip = state.plannedTrip;
+    // avoid spurious requests
+    const targetIndex = trip.findIndex(item => item.poi===action.poiID);
+    if (targetIndex === -1) return state;
+
+    if (action.direction === 'up') {
+       if (targetIndex === 0) return state;
+       [trip[targetIndex], trip[targetIndex-1]] = [trip[targetIndex-1], trip[targetIndex]];
+     }
+
+     if (action.direction === 'down') {
+        if (targetIndex === trip.length - 1) return state;
+        [trip[targetIndex], trip[targetIndex+1]] = [trip[targetIndex+1], trip[targetIndex]];
+      }
 
      return Object.assign({}, state, {
         plannedTrip: trip});
