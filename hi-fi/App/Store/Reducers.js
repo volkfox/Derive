@@ -1,4 +1,4 @@
-import { CREATE_TRIP, RATE_TRIP, ADD_PLAN_POI, DEL_PLAN_POI, CHANGE_NOTE_POI, RATE_PLAN_POI, RESTORE_STATE, TOGGLE_ONBOARD } from './Actions';
+import { CREATE_TRIP, RATE_TRIP, ADD_PLAN_POI, DEL_PLAN_POI, CHANGE_NOTE_POI, RATE_PLAN_POI, TOGGLE_ACTIVE, RESTORE_STATE, TOGGLE_ONBOARD } from './Actions';
 import {Colors} from '../Themes'
 const initialStoreState = {
 
@@ -15,10 +15,10 @@ const initialStoreState = {
 
   {id:"6", category: 'todo', header: 'MemChu', text: 'Following the death of Leland Stanford in 1893, Jane Lathrop Stanford decided to build Stanford Memorial Church as a memorial to her husband. Mrs. Stanford wanted the church to be nondenominational and a place of peace, meditation, and prayer amid the turmoil and tasks of the university.', images: [{uri: 'https://cdn-images-1.medium.com/max/2000/1*cy45yZ0I82RnY-iW_pSP5Q.jpeg'}], coordinate: {latitude: 37.427068, longitude:-122.170462}, authorRating: 4, tripID:"2", pinColor: Colors.todo4, derived: 4, author: 'Pete Sahami'},
            ],
-  alltrips: [{id: "1", author: 'Jim Piech', date: {}, title: "My Trip to Stanford", pois: ["1","2"], communityRating: 3, derived: 11},
-            {id: "2", author: 'Pete Sahami', date: {}, title: "Random Walk", pois: ["3","4","5","6"], communityRating: 2, derived: 22}],
+  alltrips: [{id: "1", author: 'Jim Piech', date: {}, title: "My Trip to Stanford", pois: ["1","2"], communityRating: 3, derived: 11,},
+            {id: "2", author: 'Pete Sahami', date: {}, title: "Random Walk", pois: ["3","4","5","6"], communityRating: 2, derived: 22, }],
 
-  plannedTrip: [{notes: '', importance: 2, poi: "1"}, {notes: '', importance: 2, poi: "2"}],
+  plannedTrip: [{notes: '', importance: 2, poi: "1", active: 'true'}, {notes: '', importance: 2, poi: "2", active: 'true'}],
   needOnboarding: 'false',
 };
 
@@ -91,6 +91,18 @@ export function reducer(state = initialStoreState, action) {
     const notedPOI = trip.find(item => item.poi===action.poiID);
     if (!notedPOI) return state;
     notedPOI.notes = action.note;
+
+     return Object.assign({}, state, {
+        plannedTrip: trip});
+  }
+
+  if (action.type === TOGGLE_ACTIVE) {
+
+    let trip = state.plannedTrip;
+    // avoid spurious requests
+    const targetPOI = trip.find(item => item.poi===action.poiID);
+    if (!targetPOI) return state;
+    targetPOI.active = action.newstate;
 
      return Object.assign({}, state, {
         plannedTrip: trip});

@@ -11,7 +11,7 @@ import { DrawerActions } from 'react-navigation';
 import { SwipeListView } from 'react-native-swipe-list-view';
 import {uid} from 'react-uid';
 
-import { changeNotePOI, delPlanPOI, ratePlanPOI } from '../Store/Actions';
+import { changeNotePOI, delPlanPOI, ratePlanPOI, toggleActive } from '../Store/Actions';
 import { Images, Colors, Metrics} from '../Themes';
 
 class Plan extends React.Component {
@@ -161,10 +161,10 @@ navigateToMarker = (event) => {
                    onRowOpen={(rowKey, rowMap, toValue) => {this.rowRef = rowMap[rowKey];}}
                    useFlatList
                    data={trip}
-                   keyExtractor = { (item) => item.poi+item.importance }
+                   keyExtractor = { (item) => JSON.stringify(item) }
                    leftOpenValue={Metrics.screenWidth*0.6}
                    rightOpenValue={-75}
-                   previewRowKey={trip[0].poi+trip[0].importance}
+                   previewRowKey={JSON.stringify(trip[0])}
                    previewOpenValue={-10}
 
                    renderItem={ (element, rowMap) => {
@@ -172,32 +172,60 @@ navigateToMarker = (event) => {
                      const item = element.item;
                      const poi = this.props.allpois.find(element => element.id===item.poi);
                      if (!poi) console.log("bummer! Trip refers to unknown POI.");
+                     const opacity = item.active?1.0:0.5;
 
                      return (
+
                      <TouchableWithoutFeedback onPress={() => (this.rowRef && this.rowRef.closeRow())} onLongPress={() => this.props.navigation.navigate('POI',{poi: poi})}  >
-                           <Card title={poi.header} titleStyle={styles.cardTitle} image={poi.images[0]} featuredSubtitle={""+item.importance}>
+                           <Card title={poi.header} titleStyle={styles.cardTitle} image={poi.images[0]} imageProps={{opacity: opacity, backgroundColor: 'gray'}}>
 
-                           <View style = {styles.rateContainer}>
-                                <StarRating
+                               <View style = {styles.rateContainer}>
+                                    <StarRating
 
-                                disabled={false}
-                                maxStars={5}
-                                rating={item.importance}
-                                selectedStar={(rating) => {
-                                    this.props.ratePOI(poi.id, rating);
-                                    let changeMarker = Object.assign({}, this.state.changeMarker);
-                                    this.setState({ changeMarker: changeMarker });
-                                  }
-                                }
-                                emptyStar={'ios-heart-empty'}
-                                fullStar={'ios-heart'}
-                                halfStar={'ios-heart-half'}
-                                iconSet={'Ionicons'}
-                                fullStarColor={Colors.bloodOrange}
-                                starSize={20}
-                                />
-                            </View>
+                                    disabled={false}
+                                    maxStars={5}
+                                    rating={item.importance}
+                                    selectedStar={(rating) => {
+                                        this.props.ratePOI(poi.id, rating);
+                                        let changeMarker = Object.assign({}, this.state.changeMarker);
+                                        this.setState({ changeMarker: changeMarker });
+                                      }
+                                    }
+                                    emptyStar={'ios-heart-empty'}
+                                    fullStar={'ios-heart'}
+                                    halfStar={'ios-heart-half'}
+                                    iconSet={'Ionicons'}
+                                    fullStarColor={Colors.bloodOrange}
+                                    starSize={20}
 
+                                    />
+                                    {item.active && <Icon
+                                      name='ios-checkmark-circle-outline'
+                                      type='ionicon'
+                                      onPress={() => {
+                                        this.props.toggleState(item.poi, false);
+                                        let changeMarker = Object.assign({}, this.state.changeMarker);
+                                        this.setState({ changeMarker: changeMarker });
+                                        }
+                                      }
+                                      size = {30}
+                                      underlayColor = 'transparent'
+                                      color={Colors.buttonBlue}
+                                    />}
+                                    {!item.active && <Icon
+                                      name='ios-checkmark-circle'
+                                      type='ionicon'
+                                      onPress={() => {
+                                        this.props.toggleState(item.poi, true);
+                                        let changeMarker = Object.assign({}, this.state.changeMarker);
+                                        this.setState({ changeMarker: changeMarker });
+                                        }
+                                      }
+                                      size = {30}
+                                      underlayColor = 'transparent'
+                                      color={Colors.buttonBlue}
+                                    />}
+                                </View>
                            </Card>
                         </TouchableWithoutFeedback>
                    )}}
@@ -296,6 +324,7 @@ navigateToMarker = (event) => {
       changeNote: (id, note) => dispatch(changeNotePOI(id, note)),
       delPlan: (id) => dispatch(delPlanPOI(id)),
       ratePOI: (id, rating) => dispatch(ratePlanPOI(id, rating)),
+      toggleState: (id, state) => dispatch(toggleActive(id, state)),
     };
   }
 

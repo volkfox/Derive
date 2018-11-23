@@ -5,7 +5,7 @@ export const ADD_PLAN_POI = 'ADD_PLAN_POI';
 export const DEL_PLAN_POI = 'DEL_PLAN_POI';
 export const RATE_PLAN_POI = 'RATE_PLAN_POI';
 export const CHANGE_NOTE_POI = 'CHANGE_NOTE_POI';
-
+export const TOGGLE_ACTIVE = 'TOGGLE_ACTIVE';
 export const TOGGLE_ONBOARD = 'TOGGLE_ONBOARD';
 export const RESTORE_STATE = 'RESTORE_STATE';
 
@@ -54,6 +54,14 @@ export function ratePlanPOI(poiID, rating) {
     type: RATE_PLAN_POI,
     poiID: poiID,
     rating: rating,
+  };
+}
+
+export function toggleActive(poiID, newstate) {
+  return {
+    type: TOGGLE_ACTIVE,
+    poiID: poiID,
+    newstate: newstate,
   };
 }
 
