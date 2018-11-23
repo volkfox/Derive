@@ -126,8 +126,6 @@ navigateToMarker = (event) => {
       console.log("Bummer! Empty trip passed into a trip screen")
       return (null);
     }
-    //const trip = this.props.alltrips.find(item => item.id===passedTrip.id);
-    //if (!trip) return (null);
 
     const poiSet = new Set(trip.map(item => item.poi));
 
@@ -137,8 +135,11 @@ navigateToMarker = (event) => {
             <Text> Bummer! {"\n\n"} You did not add anything to planner yet. {"\n"} Try exploring more places. </Text>
         </View>
     );
-    const pois = this.props.allpois.filter(item => poiSet.has(item.id)&&((this.state.sleepFilter && item.category==='sleep') || (this.state.foodFilter && item.category==='food') || (this.state.todoFilter && item.category==='todo')));
 
+    // refactor as search of trip pois later?
+    const matchingPOIs = this.props.allpois.filter(item => poiSet.has(item.id)&&((this.state.sleepFilter && item.category==='sleep') || (this.state.foodFilter && item.category==='food') || (this.state.todoFilter && item.category==='todo')));
+    // leave only active entries
+    const pois = matchingPOIs.filter(item => trip.find(el => item.id ===el.poi).active);
 
     //console.log(`Planned trip pois: ${pois}`);
     return (
