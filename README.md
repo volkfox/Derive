@@ -1,53 +1,58 @@
 ## Hi-Fi project featurelist
 
-Top navigation (**Explore, Plan, Report**) is done via edge swipe  (left-right direction, also duplicated as hamburger menu).
+Core tasks (**Explore, Plan, Report**) are accessed via edge swipe  (also duplicated in hamburger menu).
 
 ### Explore
 1. *Main* screen.
-   * Search box with auto-propmt for arbitrary geographic destination
+   * Search box with auto-prompt for arbitrary geographic destinations
    * Pre-configured 'Current Location' and 'Stanford' destinations popping up when clicking search box
    * Search is activated by hitting Enter on keyboard and leads into *Trips* screen
-   * Expose (scrollable band) of random clickable POIs that lead into *POI* screen
+   * Exposé (scrollable band) of randomly chosen clickable POIs that lead into respective *POI* screen
    
 2. *Trips* screen (list and map representations, defaults to list view)
-   * List: scrollable list of matching trip (trip must have at least one POI in the geographic area of search)
-   * List: trip is represented as expose of POIs. Clicking on band leads into Trips screen
-   * Map: Filter buttons showing/hiding category markers
-   * Map: Panning/zooming selects/unselects trips in the area of map
-   * Map: Clickable markers with POI title/description, clicking callouts lead into *POI* screen
-   * Map: long click into Marker or arbitrary map point leads into Apple Navigation app
-   * Map: Marker colors are coded as functions of POI categories and author's rating
+   * ListView: scrollable list of matching trips (a trip must have at least one POI in active search area to be shown)
+   * ListView: trip is represented as exposé of POIs. Clicking on band leads into Trips screen
+   * MapView: Filter buttons showing/hiding markers based on three categories (todo, sleep, food)
+   * MapView: Panning/zooming selects/unselects trips based on active map area
+   * MapView: Clickable markers with POI title/description, clicking callouts lead into *POI* screen
+   * MapView: long click into a Marker or an arbitrary map point leads into the Apple Navigation app
+   * MapView: Marker colors are coded as functions of POI categories and author's POI rankings
    
 3.  *Trip* screen (list and map representations)
-    * List: scrollable list of clickable trip POIs (images and text), click leads into *POI* screen
-    * List: Entire trip can be added to planner with one button click
-    * Map:  Trips POIs shown as markers and connected. Same filtering, colors and Apple Navigation features as in *Trips* screen.
-    * Map:  Zooming/panning does not select or unselect markers
-    * Community Rating: viewer can assign rating to a trip
+    * ListView: scrollable list of clickable trip POIs (images and text), click leads into *POI* screen
+    * ListView: Entire trip can be added to planner with one button click
+    * ListView: Community Rating: viewer can vote (contribute rating) to a trip report
+    * MapView:  Trips POIs shown as markers and connected. Same filtering, coloring and Apple Navigation features as in *Trips* screen.
+    * MapView:  Zooming/panning does not affect trip POI markers
+    
   
 4.  *POI* screen
-    * Clickable image leads into the "Lightbox" view
+    * Clickable image leads into the "lightbox-style" modal view
     * POI can be added to planner
-    * Author's own POI rank (not changeable by the viewers)
+    * Author's POI rank shown (not changeable by the viewers)
+    * Clickable author's name navigates into *Trip* screen
     
 ### Plan 
  1. *Main* screen (list and map representations, defaults to list view)
-     *  Private importance (heart) POI ranking
+     *  Private importance POI ranking
      *  Icon to disable a planned POI
-     *  Swiping POI right allows to fill a notes post-it
-     *  Swiping POI left allows to drop, or move POI up/down
-     *  Single-clicking POI card closes open row
-     *  Long clicking POI card leads into *POI* screen
-     *  Map representation uses same features as other map screens plus ignores disabled POIs.
+     *  Swiping POI right allows to fill a "notes" post-it
+     *  Swiping POI left reveals drop and move icons
+     *  Single-clicking POI card closes the open row
+     *  Long clicking POI card leads into *POI* screen (nav to trip feature will be disabled there)
+     *  Map representation uses same features as other map screens AND ignores disabled POIs.
  
 **Project limitations:**
-  * React Native platform
-  * IOS only
+  * React Native platform w/Expo
+  * IOS only (Android likely have bugs with map)
   * No support for multiple planned trips
   * Reporting one trip at a time
-  * No editing interface for saved reports
+  * No editing interface for published reports
   * No commenting interface (or other social features)
   * No indications of the time of the trip
+  
+### Generate
+   TBD
   
   **Redux Database Schema by example:**
 ```  
