@@ -1,6 +1,6 @@
 
 import React from 'react';
-import {  Modal, StyleSheet, Text, View, TextInput, ScrollView, TouchableOpacity, SafeAreaView } from 'react-native';
+import {  Modal, StyleSheet, Text, View, TextInput, ScrollView, TouchableOpacity, TouchableWithoutFeedback, SafeAreaView } from 'react-native';
 import { Card, Button } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/Feather';
 import ImageViewer from 'react-native-image-zoom-viewer';
@@ -19,6 +19,7 @@ constructor(props){
 state = {
             imageIndex: 0,
             isModalVisible: false,
+            plan: this.props.navigation.getParam('plan', null),
         };
 
 static navigationOptions = ({navigation}) => {
@@ -61,6 +62,7 @@ render() {
       const derived = this.props.allpois.find(item => item.id === poi.id).derived;
       const planned = this.props.plannedTrip.find(item => item.poi  === poi.id);
 
+      console.log(`Plan parameter is: ${this.state.plan}`);
       return (
 
         <SafeAreaView styles={styles.container}>
@@ -68,9 +70,12 @@ render() {
 
 
             <View style = {styles.propContainer}>
-                <TouchableOpacity onPress={() => this.props.navigation.navigate('Trip',{trip: trip})} >
-                <Text>from trip by {poi.author} </Text>
-                </TouchableOpacity>
+
+                { !this.state.plan && <TouchableOpacity onPress={() => this.props.navigation.navigate('Trip',{trip: trip})} >
+                <Text style={{color: Colors.buttonBlue}}>from trip by {poi.author} </Text>
+                </TouchableOpacity>}
+                {/* disable navigation to Trip screen if called from Plan task */}
+                { this.state.plan && <Text>from trip by {poi.author} </Text>}
             </View>
 
           { !planned && <Button
@@ -85,7 +90,7 @@ render() {
                               buttonStyle={{borderRadius: 0, marginLeft: 0, marginRight: 0, marginBottom: 0}}
                               title='Drop from plan' style={{marginTop: 20}}/> }
 
-            <TouchableOpacity onPress={() => this._toggleModal(true)}>
+            <TouchableWithoutFeedback onPress={() => this._toggleModal(true)}>
 
                 <Card image={poi.images[0]} >
 
@@ -94,12 +99,12 @@ render() {
                     <StarRating
                     disabled={true}
                     maxStars={5}
-                    rating={3.5}
-                    emptyStar={'ios-star-outline'}
-                    fullStar={'ios-star'}
-                    halfStar={'ios-star-half'}
+                    rating={poi.authorRating}
+                    emptyStar={'ios-heart-empty'}
+                    fullStar={'ios-heart'}
+                    halfStar={'ios-heart-half'}
                     iconSet={'Ionicons'}
-                    fullStarColor={poi.pinColor}
+                    fullStarColor={'lightgray'}
                     starSize={20}
                     />
                     <Text style={{fontFamily: 'Helvetica Neue'}}>/{derived}</Text>
@@ -109,13 +114,14 @@ render() {
                 </Text>
 
                 </Card>
-            </TouchableOpacity>
+            </TouchableWithoutFeedback>
 
 
           <Modal visible={this.state.isModalVisible} transparent={true}>
             <ImageViewer imageUrls={images}
                          enableSwipeDown="true"
                          onCancel={() => this._toggleModal(false)} saveToLocalByLongPress="false"
+                         renderIndicator={ () => <View></View>}
                          renderFooter={ () => <Text style={{color: 'white', top: -40, left: 40,}}>Swipe down to exit</Text>}
              />
            </Modal>

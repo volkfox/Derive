@@ -64,10 +64,10 @@ _renderTrip = ({item}) => {
                     fullStar={'ios-star'}
                     halfStar={'ios-star-half'}
                     iconSet={'Ionicons'}
-                    fullStarColor={Colors.gold}
+                    fullStarColor={'lightgray'}
                     starSize={20}
                     />
-                <Text style={{fontFamily: 'Helvetica Neue'}}>/{item.derived} </Text>
+                  <Text style={{fontFamily: 'Helvetica Neue'}}>/{item.derived} </Text>
             </View>
            <View style = {styles.tripPropertiesContainer}>
 
@@ -360,7 +360,7 @@ const styles = StyleSheet.create({
         marginBottom: 'auto',
     },
     rating: {
-        marginLeft: 10,
+        marginLeft: 5,
         width: 120,
         flexDirection: 'row',
     },

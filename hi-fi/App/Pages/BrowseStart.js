@@ -1,6 +1,6 @@
 // Main Search Screen
 import React from 'react';
-import { StyleSheet, Text, View, Image, Button, TextInput, AsyncStorage, SafeAreaView, Keyboard, TouchableWithoutFeedback,TouchableHighlight,  TouchableOpacity, FlatList, ScrollView } from 'react-native';
+import { StyleSheet, Text, View, Image, Button, TextInput, AsyncStorage, SafeAreaView, Keyboard, TouchableWithoutFeedback, TouchableHighlight,  TouchableOpacity, FlatList, ScrollView } from 'react-native';
 import {List, ListItem} from 'react-native-elements';
 import Icon from 'react-native-vector-icons/Feather';
 import { DrawerActions } from 'react-navigation';
@@ -81,6 +81,13 @@ _renderItem = ({item}) => {
 
 };
 
+_shuffle = (a) => {
+    for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+}
 
 _renderSeparator = () => {
     return (
@@ -118,7 +125,7 @@ componentWillUnmount() {
 
 render() {
 
-      const {allpois} = this.props;
+      const allpois = this._shuffle(this.props.allpois.slice(0));
 
 
       return (

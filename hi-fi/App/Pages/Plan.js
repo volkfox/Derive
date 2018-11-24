@@ -80,7 +80,7 @@ navigateToMarker = (event) => {
      this.state.activeMarker.coordinate.latitude === marker.coordinate.latitude &&
      this.state.activeMarker.coordinate.longitude === marker.coordinate.longitude);
            if (!poi) return;
-           this.props.navigation.navigate('POI',{poi: poi})
+           this.props.navigation.navigate('POI',{poi: poi, plan: true})
      }
 
      renderNavBar = () => {
@@ -173,11 +173,11 @@ navigateToMarker = (event) => {
                      const item = element.item;
                      const poi = this.props.allpois.find(element => element.id===item.poi);
                      if (!poi) console.log("bummer! Trip refers to unknown POI.");
-                     const opacity = item.active?1.0:0.5;
+                     const opacity = item.active?1.0:0.3;
 
                      return (
 
-                     <TouchableWithoutFeedback onPress={() => (this.rowRef && this.rowRef.closeRow())} onLongPress={() => this.props.navigation.navigate('POI',{poi: poi})}  >
+                     <TouchableWithoutFeedback onPress={() => (this.rowRef && this.rowRef.closeRow())} onLongPress={() => this.props.navigation.navigate('POI',{poi: poi, plan: true})}  >
                            <Card title={poi.header} titleStyle={styles.cardTitle} image={poi.images[0]} imageProps={{opacity: opacity, backgroundColor: 'gray'}}>
 
                                <View style = {styles.rateContainer}>
@@ -192,17 +192,17 @@ navigateToMarker = (event) => {
                                         this.setState({ changeMarker: changeMarker });
                                       }
                                     }
-                                    emptyStar={'ios-heart-empty'}
-                                    fullStar={'ios-heart'}
-                                    halfStar={'ios-heart-half'}
+
+                                    emptyStar={'ios-star-outline'}
+                                    fullStar={'ios-star'}
+                                    halfStar={'ios-star-half'}
                                     iconSet={'Ionicons'}
-                                    fullStarColor={Colors.bloodOrange}
+                                    fullStarColor={Colors.buttonBlue}
                                     starSize={20}
 
                                     />
                                     {item.active && <Icon
-                                      name='ios-checkmark-circle-outline'
-                                      type='ionicon'
+                                      name='radio-button-unchecked'
                                       onPress={() => {
                                         this.props.toggleState(item.poi, false);
                                         let changeMarker = Object.assign({}, this.state.changeMarker);
@@ -214,8 +214,7 @@ navigateToMarker = (event) => {
                                       color={Colors.buttonBlue}
                                     />}
                                     {!item.active && <Icon
-                                      name='ios-checkmark-circle'
-                                      type='ionicon'
+                                      name='check'
                                       onPress={() => {
                                         this.props.toggleState(item.poi, true);
                                         let changeMarker = Object.assign({}, this.state.changeMarker);
