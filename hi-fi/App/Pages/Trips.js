@@ -219,7 +219,7 @@ componentDidMount() {
             onPress={() => this.toggleFilter('sleepFilter')}
             size = {40}
             underlayColor = 'transparent'
-            color={this.state.sleepFilter?'black':'lightgray'}
+            color={this.state.sleepFilter?Colors.sleep3:'lightgray'}
           />
           <Icon
             name='ios-restaurant'
@@ -227,7 +227,7 @@ componentDidMount() {
             onPress={() => this.toggleFilter('foodFilter')}
             size = {40}
             underlayColor = 'transparent'
-            color={this.state.foodFilter?'black':'lightgray'}
+            color={this.state.foodFilter?Colors.food3:'lightgray'}
           />
           <Icon
             name='ios-image'
@@ -235,7 +235,7 @@ componentDidMount() {
             onPress={() => this.toggleFilter('todoFilter')}
             size = {40}
             underlayColor = 'transparent'
-            color={this.state.todoFilter?'black':'lightgray'}
+            color={this.state.todoFilter?Colors.todo3:'lightgray'}
           />
          </View>
 
@@ -258,7 +258,7 @@ componentDidMount() {
                 key={parseInt(marker.id)}
                 coordinate={marker.coordinate}
                 title={marker.header}
-                description={marker.text}
+                description={"❤".repeat(Math.round(parseFloat(marker.authorRating)))}
                 pinColor={marker.pinColor}
                 onCalloutPress={e => this.navigateToMarker(e.nativeEvent)}
                 onPress={e => this.setState({activeMarker: e.nativeEvent})}

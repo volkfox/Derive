@@ -62,7 +62,6 @@ render() {
       const derived = this.props.allpois.find(item => item.id === poi.id).derived;
       const planned = this.props.plannedTrip.find(item => item.poi  === poi.id);
 
-      console.log(`Plan parameter is: ${this.state.plan}`);
       return (
 
         <SafeAreaView styles={styles.container}>
