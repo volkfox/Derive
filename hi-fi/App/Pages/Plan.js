@@ -20,6 +20,7 @@ constructor(props) {
       super(props);
       this.mapRef = null;
       this.rowRef = null;
+      this.rowOpen = false;
 }
 
 state = {
@@ -160,6 +161,8 @@ navigateToMarker = (event) => {
                    style={styles.listview}
                    friction = {7}
                    onRowOpen={(rowKey, rowMap, toValue) => {this.rowRef = rowMap[rowKey];}}
+                   onRowDidClose={(rowKey, rowMap) => {this.rowOpen = false;}}
+                   onRowDidOpen={(rowKey, rowMap) => {this.rowOpen = true;}}
                    useFlatList
                    data={trip}
                    keyExtractor = { (item) => JSON.stringify(item) }
@@ -177,7 +180,11 @@ navigateToMarker = (event) => {
 
                      return (
 
-                     <TouchableWithoutFeedback onPress={() => (this.rowRef && this.rowRef.closeRow())} onLongPress={() => this.props.navigation.navigate('POI',{poi: poi, plan: true})}  >
+                     <TouchableWithoutFeedback onPress={ () => {
+                          console.log(this.rowOpen);
+                          !this.rowOpen && this.props.navigation.navigate('POI',{poi: poi, plan: true})
+                           this.rowOpen && this.rowRef.closeRow();
+                       }} >
                            <Card title={poi.header} titleStyle={styles.cardTitle} image={poi.images[0]} imageProps={{opacity: opacity, backgroundColor: 'gray'}}>
 
                                <View style = {styles.rateContainer}>
