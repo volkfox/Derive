@@ -1,8 +1,7 @@
 // Main Search Screen
 import React from 'react';
 import { StyleSheet, Text, View, Image, Button, TextInput, AsyncStorage, SafeAreaView, Keyboard, TouchableWithoutFeedback, TouchableHighlight,  TouchableOpacity, FlatList, ScrollView } from 'react-native';
-import {List, ListItem} from 'react-native-elements';
-import Icon from 'react-native-vector-icons/Feather';
+import {List, ListItem, Icon} from 'react-native-elements';
 import { DrawerActions } from 'react-navigation';
 import { connect } from 'react-redux';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
@@ -39,6 +38,7 @@ static navigationOptions = ({navigation}) => {
     }
 };
 
+
 _textStyle = function(options) {
    return {
      color: this.state.inputTextColor
@@ -62,7 +62,7 @@ runSearch = (data, details) => {
     let startWithMap =  false;
     if (description == 'Current Location') startWithMap = true;
     // need push here?
-    this.props.navigation.navigate('Trips',{geodata: {geometry: details.geometry, description: description}, startWithMap: startWithMap});
+    this.props.navigation.navigate('Trips',{geodata: {geometry: details.geometry, description: description}, startWithMap: startWithMap, rightIcon: 'map-outline'});
 }
 
 _keyExtractor = (item, index) => item.id;

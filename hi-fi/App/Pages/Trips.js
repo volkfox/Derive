@@ -44,6 +44,23 @@ class Trips extends React.Component {
    showMap: this.props.navigation.getParam('startWithMap', false),
 }
 
+static navigationOptions = ({navigation}) => {
+
+   return {
+        headerTitle: 'Explore Trips',
+        headerRight: <Icon
+          type='material-community'
+          name={navigation.getParam('rightIcon')}
+          size={30}
+          containerStyle={{marginRight: 5}}
+          color={Colors.appleBlue}
+          onPress={navigation.getParam('toggleShowMap')}
+         />
+    }
+};
+
+
+
 _keyExtractor = (item, index) => item.id;
 
 _renderTrip = ({item}) => {
@@ -52,7 +69,7 @@ _renderTrip = ({item}) => {
 
    return (
 
-   <TouchableOpacity onPress={() => this.props.navigation.navigate('Trip',{trip: item})}>
+   <TouchableOpacity onPress={() => this.props.navigation.navigate('Trip',{trip: item, rightIcon: 'map-outline'})}>
 
        <View style = {styles.tripContainer}>
            <View style= {styles.rating}>
@@ -153,14 +170,14 @@ filterMarkersByViewport = (vp) => {
    this.setState({markers: markers});
 }
 
-toggleShowMap = () =>
-  this.setState((prevstate) => {return {showMap: !prevstate.showMap}});
+toggleShowMap = () => {
 
-static navigationOptions = ({navigation}) => {
-   return {
-        headerTitle: 'Explore Trips',
-    }
-};
+   this.props.navigation.setParams({rightIcon: this.state.showMap?'map-outline':'format-list-bulleted'});
+   this.setState((prevstate) => {return {showMap: !prevstate.showMap}});
+
+}
+
+
 
 // logic: if there is an active marker double clicking always sends to marker position
 // otherwise navigate to the clicked point in the map
@@ -187,6 +204,8 @@ componentDidMount() {
     // need to create markers even if starting with a list to find matching trips
     this.filterMarkersByViewport(geodata.geometry.viewport);
     this.setState({geodata: geodata});
+
+    this.props.navigation.setParams({ toggleShowMap: this.toggleShowMap });
 }
 
   render() {
@@ -206,11 +225,6 @@ componentDidMount() {
       return (
 
         <SafeAreaView style={styles.container}>
-
-          <Switch style={styles.switch}
-            onValueChange = {this.toggleShowMap}
-            value = {this.state.showMap}/>
-
 
           <View style={styles.navbar}>
           <Icon
@@ -286,10 +300,6 @@ componentDidMount() {
        if (!this.state.showMap) return (
 
          <SafeAreaView style={styles.container}>
-
-          <Switch style={styles.switch}
-            onValueChange = {this.toggleShowMap}
-            value = {this.state.showMap}/>
 
            { activeTrips.length ? triplist : nodata }
 
@@ -367,7 +377,7 @@ const styles = StyleSheet.create({
     map: {
 
     ...StyleSheet.absoluteFillObject,
-    top: 50,
+    top: 0,
 
     },
 });

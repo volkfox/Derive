@@ -45,13 +45,25 @@ state = {
                       onPress={ () =>
                                navigation.dispatch(DrawerActions.toggleDrawer() )}
                   />,
+                  headerRight: <Icon
+                    type='material-community'
+                    name={navigation.getParam('rightIcon')}
+                    size={30}
+                    containerStyle={{marginRight: 5}}
+                    color={Colors.appleBlue}
+                    onPress={navigation.getParam('toggleShowMap')}
+                   />,
               })
 }
 
 
 
-toggleShowMap = () =>
+toggleShowMap = () => {
+
+     this.props.navigation.setParams({rightIcon: this.state.showMap?'map-outline':'format-list-bulleted'});
      this.setState((prevstate) => {return {showMap: !prevstate.showMap}});
+
+   }
 
 sendToNav = (e) => {
 
@@ -117,7 +129,9 @@ navigateToMarker = (event) => {
      }
 
 
-
+componentDidMount() {
+      this.props.navigation.setParams({ toggleShowMap: this.toggleShowMap });
+}
 
   render() {
 
@@ -146,13 +160,7 @@ navigateToMarker = (event) => {
     return (
         <SafeAreaView style={styles.container}>
 
-         <View style={styles.switchContainer}>
 
-               <Switch style={styles.switch}
-                 onValueChange = {this.toggleShowMap}
-                 value = {this.state.showMap}/>
-
-         </View>
 
          {!this.state.showMap && <ScrollView style={styles.scroll}>
             <SwipeListView

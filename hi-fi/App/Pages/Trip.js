@@ -1,8 +1,7 @@
 
 import React from 'react';
 import {  Modal, StyleSheet, Text, View, TextInput, ScrollView, Switch, TouchableOpacity, SafeAreaView, Linking } from 'react-native';
-import { Card, Button } from 'react-native-elements';
-import { Icon } from 'react-native-elements';
+import { Card, Button, Icon } from 'react-native-elements';
 import ImageViewer from 'react-native-image-zoom-viewer';
 import StarRating from 'react-native-star-rating';
 import { connect } from 'react-redux';
@@ -32,6 +31,14 @@ static navigationOptions = ({navigation}) => {
    const trip = navigation.getParam('trip', {title: 'My Trip'});
    return {
         headerTitle: trip.title,
+        headerRight: <Icon
+          type='material-community'
+          name={navigation.getParam('rightIcon')}
+          size={30}
+          containerStyle={{marginRight: 5}}
+          color={Colors.appleBlue}
+          onPress={navigation.getParam('toggleShowMap')}
+         />
     }
 }
 
@@ -52,8 +59,12 @@ isSuperset = (set, subset)  => {
     return true;
 }
 
-toggleShowMap = () =>
+toggleShowMap = () => {
+
+  this.props.navigation.setParams({rightIcon: this.state.showMap?'map-outline':'format-list-bulleted'});
   this.setState((prevstate) => {return {showMap: !prevstate.showMap}});
+
+}
 
 sendToNav = (e) => {
 
@@ -119,6 +130,7 @@ navigateToMarker = (event) => {
   }
 
 componentDidMount() {
+  this.props.navigation.setParams({ toggleShowMap: this.toggleShowMap });
 }
 
 render() {
@@ -161,10 +173,7 @@ render() {
              <Text style={{fontFamily: 'Helvetica Neue'}}>/{trip.derived}</Text>
            </View>
            <Text>by {trip.author} </Text>
-
-             <Switch style={styles.switch}
-               onValueChange = {this.toggleShowMap}
-               value = {this.state.showMap}/>
+;
 
        </View>
 

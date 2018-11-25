@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, Text, View, Image, Button, ActivityIndicator, SectionList, Dimensions, ScrollView, SafeAreaView, AsyncStorage } from 'react-native';
-
+import { Icon } from 'react-native-elements';
 import { createStackNavigator, createDrawerNavigator, createBottomTabNavigator, DrawerActions, DrawerItems, NavigationActions} from 'react-navigation';
 import { createMaterialBottomTabNavigator } from 'react-navigation-material-bottom-tabs';
 
@@ -13,7 +13,7 @@ import {restoreState, toggleOnboard} from './App/Store/Actions'
 
 import { Images, Colors, Metrics } from './App/Themes';
 import * as pages from './App/Pages';
-import Icon from 'react-native-vector-icons/Feather';
+
 
 // deferred features: multiple pics per POI, multiple planned trips,
 // usernames and profile settings, access to published reports
@@ -41,23 +41,26 @@ const BrowseNavigator = createStackNavigator(
 const PlanNavigator = createStackNavigator(
   {
     Trip: pages.Plan,
-    POI: pages.POI, 
+    POI: pages.POI,
   },
   {
     initialRouteName: 'Trip',
+    initialRouteParams: {
+      rightIcon: 'map-outline',
+    }
 });
 
 
 const GenerationNavigator = createStackNavigator({
-    
+
   Generation: pages.Generation,
   Trip: pages.MyTrip,
   POI: pages.EditPOI,
-}, { 
+}, {
      headerMode: 'float',
      initialRouteName: 'Generation',
      navigationOptions: ({navigation}) => {
-         
+
         return {
         }
     }
@@ -81,7 +84,7 @@ const DrawerNav = createDrawerNavigator({
   },
   { initialRouteName: 'Explore',
     contentComponent: CustomDrawerContentComponent,
-    
+
 });
 
 // redux debug midddleware
@@ -93,7 +96,7 @@ AsyncStorage.getItem('state').then(json => {
   if (json) {
     store.dispatch(restoreState(JSON.parse(json)));
   } else {
-     store.dispatch(toggleOnboard(true)); 
+     store.dispatch(toggleOnboard(true));
   }
   store.subscribe(() => {
     AsyncStorage.setItem('state', JSON.stringify(store.getState()));
@@ -113,7 +116,7 @@ render() {
       );
     }
   }
-          
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,

@@ -25,6 +25,7 @@ const colors = {
   gold: '#D4AF37',
   buttonBlue: '#03A9F4',
   buttonRed: '#F44E03',
+  appleBlue: 'rgba(0, 122, 255, 1)',
   sleep5: '#3498DB',
   sleep4: '#5DADE2',
   sleep3: '#85C1E9',
