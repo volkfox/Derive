@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "hi-fi",
-    "description": "This project is really great.",
+    "name": "Derive",
+    "description": "Explore. Plan. Travel.",
     "slug": "hi-fi",
     "privacy": "public",
     "sdkVersion": "31.0.0",
@@ -22,6 +22,7 @@
     ],
     "ios": {
       "supportsTablet": true,
+      "bundleIdentifier": "com.stanford.derive"
       "config": {
          "googleMapsApiKey": 'AIzaSyA2wTXGcvjHgIgQRWc0at7uPn7_2Vc80Sw', 
     }
