@@ -3,7 +3,7 @@ import React from 'react';
 import { StyleSheet, Text, View, Button, TextInput, Image, ScrollView, TouchableOpacity, Alert, KeyboardAvoidingView} from 'react-native';
 import { Images, Colors, Metrics } from '../Themes';
 import { DrawerActions } from 'react-navigation-drawer';
-import { Icon } from 'react-native-elements';
+import { Icon, Card } from 'react-native-elements';
 import { ImagePicker, Permissions } from 'expo';
 import StarRating from 'react-native-star-rating';
 import Dialog, { DialogContent, DialogButton, DialogTitle } from 'react-native-popup-dialog';
@@ -66,7 +66,7 @@ return {
                 name="ios-add"
                 type='ionicon'
                 size={30}
-                iconStyle={styles.icon}
+                iconStyle={styles.shareIcon}
                 color={Colors.appleBlue}
                 onPress={ navigation.getParam('addPOI')}
                 />
@@ -74,7 +74,7 @@ return {
                     name="ios-share"
                     type='ionicon'
                     size={30}
-                    iconStyle={styles.icon}
+                    iconStyle={styles.shareIcon}
                     color={Colors.appleBlue}
                     onPress={ navigation.getParam('submitTrip')}
                     />
@@ -289,8 +289,8 @@ render() {
       </Dialog>
 
 
-    <ScrollView style={styles.card} ref={component => { this.myScrollView = component; }}>
-
+    <ScrollView style={styles.scroller} ref={component => { this.myScrollView = component; }}>
+      <Card style={styles.card} wrapperStyle={styles.cardWrapper} containerStyle={styles.cardContainer}>
           <TouchableOpacity onPress={this._pickImage}>
             <Image source={this.state.image} style={styles.cardImage} />
           </TouchableOpacity>
@@ -367,6 +367,7 @@ render() {
                   />
                 <View style={{ height: 300 }} />
               </KeyboardAvoidingView>
+            </Card>
     </ScrollView>
   </View>
 
@@ -396,20 +397,26 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  scroller: {
+  },
   card: {
-    backgroundColor: 'white',
-    marginTop: 10,
-    marginLeft: 10,
-    marginRight: 10,
-    flex: 1,
-    alignSelf: 'stretch',
-    alignContent: 'flex-start',
+    width: Metrics.screenWidth*0.9,
   },
   cardImage: {
     marginTop: 20,
     width: Metrics.screenWidth*0.9,
     height: Metrics.screenWidth*0.9,
   },
+  cardWrapper: {
+    padding: 0,
+  },
+
+  cardContainer: {
+    padding: 0,
+    marginLeft: 0,
+    marginRight: 0,
+  },
+
   propBox: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -434,8 +441,8 @@ const styles = StyleSheet.create({
   iconContainer: {
     flexDirection: 'row',
   },
-  icon: {
-    marginLeft: 10,
+  shareIcon: {
+    marginLeft: 20,
     marginRight: 5,
   }
 });
