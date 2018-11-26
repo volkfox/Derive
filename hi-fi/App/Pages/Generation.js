@@ -8,9 +8,11 @@ import { ImagePicker, Permissions } from 'expo';
 import StarRating from 'react-native-star-rating';
 import Dialog, { DialogContent, DialogButton, DialogTitle } from 'react-native-popup-dialog';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
+import { connect } from 'react-redux';
 
+import { addReport } from '../Store/Actions';
 
-export default class Generation extends React.Component {
+ class Generation extends React.Component {
 
 
   constructor(props) {
@@ -21,7 +23,10 @@ export default class Generation extends React.Component {
         this.props.navigation.setParams({ title: this.state.title });
         this.props.navigation.setParams({ setTitle: this.setTitle });
         this.props.navigation.setParams({ addPOI: this.addPOI})
+        this.props.navigation.setParams({ submitTrip: this.submitTrip})
   }
+
+
 
 state = {
       header: '',
@@ -31,8 +36,8 @@ state = {
       author: 'Joe Appleseed',
       authorRating: 0,
       text: '',
-      category: 'todo',
-      title: 'Untitled report',
+      category: 'sleep',
+      title: 'New report',
 
       titleDialogVisible: false,
       titleText: '',
@@ -71,7 +76,7 @@ return {
                     size={30}
                     iconStyle={styles.icon}
                     color={Colors.appleBlue}
-                    onPress={ navigation.getParam('addPOI')}
+                    onPress={ navigation.getParam('submitTrip')}
                     />
             </View>)
     }
@@ -110,6 +115,7 @@ _checkCameraPermissions = async  () => {
 
 addPOI = () => {
 
+
    if (!this.validGPS()) {
      Alert.alert(
            '',
@@ -136,12 +142,49 @@ addPOI = () => {
      return;
    }
    const pinColorName = this.state.category+this.state.rating;
-   const poi = {header: this.state.header, text: this.state.text, authorRating: this.state.rating, image: this.state.image,
-     author: this.state.author, category: this.state.category, derived: 0, pinColor: Colors[pinColorName]};
+   const poi = {header: this.state.header, text: this.state.text, authorRating: this.state.rating, images: [this.state.image],
+     author: this.state.author, category: this.state.category, derived: 0, pinColor: Colors[pinColorName], id: 0};
+   poi.id = shortid.generate();
 
    this.setState({pois: [poi,...this.state.pois]});
    console.log([poi,...this.state.pois]);
+
    // clear up.
+}
+
+submitTrip = () => {
+
+   if (!this.pois.length) {
+     Alert.alert(
+           '',
+           'Please add at least one point of interest',
+           [
+             {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
+             {text: 'OK', onPress: () => console.log('OK Pressed')},
+           ],
+           { cancelable: false }
+         );
+     return;
+   }
+
+   if (this.state.title === 'New report') {
+     Alert.alert(
+           '',
+           'Please name this report',
+           [
+             {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
+             {text: 'OK', onPress: () => console.log('OK Pressed')},
+           ],
+           { cancelable: false }
+         );
+     return;
+   }
+
+   const poiList = this.state.pois.map(poi => poi.id);
+   const trip = {id: shortid.generate(), author: this.state.author, date: {}, title: this.state.title, pois: poiList, communityRating: 0, derived: 0,}
+   this.props.publish(this.state.pois, trip);
+
+   // clean up the current and draftpois
 }
 
 setTitle = () => {
@@ -269,6 +312,31 @@ render() {
             />
 
             <Icon
+              name='ios-bed'
+              type='ionicon'
+              onPress={() => this.setState({category: 'sleep'})}
+              size = {30}
+              underlayColor = 'transparent'
+              color={this.state.category==='sleep'?Colors.sleep3:'lightgray'}
+            />
+            <Icon
+              name='ios-restaurant'
+              type='ionicon'
+              onPress={() => this.setState({category: 'food'})}
+              size = {30}
+              underlayColor = 'transparent'
+              color={this.state.category==='food'?Colors.food3:'lightgray'}
+            />
+            <Icon
+              name='ios-image'
+              type='ionicon'
+              onPress={() => this.setState({category: 'todo'})}
+              size = {30}
+              underlayColor = 'transparent'
+              color={this.state.category==='todo'?Colors.todo3:'lightgray'}
+            />
+
+            <Icon
               name='map-outline'
               type='material-community'
               size={30}
@@ -306,7 +374,20 @@ render() {
   }
 }
 
-  // onPress={() => this.logout()}/>
+const shortid = require('shortid');
+
+function mapStateToProps(storeState) {
+  return {
+    draftpois: storeState.draftpois,
+   };
+}
+
+function mapDispatchToProps(dispatch, props) {
+  return {
+    publish: (pois, trip) => dispatch(addReport(pois, trip)),
+  };
+}
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -356,3 +437,5 @@ const styles = StyleSheet.create({
     marginRight: 5,
   }
 });
+
+  export default connect(mapStateToProps, mapDispatchToProps)(Generation);

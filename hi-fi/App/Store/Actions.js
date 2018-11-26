@@ -7,6 +7,7 @@ export const RATE_PLAN_POI = 'RATE_PLAN_POI';
 export const CHANGE_NOTE_POI = 'CHANGE_NOTE_POI';
 export const TOGGLE_ACTIVE = 'TOGGLE_ACTIVE';
 export const MOVE_POI  = 'MOVE_POI';
+export const ADD_REPORT = 'ADD_REPORT';
 
 export const TOGGLE_ONBOARD = 'TOGGLE_ONBOARD';
 export const RESTORE_STATE = 'RESTORE_STATE';
@@ -27,6 +28,14 @@ export function rateTrip(tripID, rating) {
       tripID: tripID,
       rating: rating,
   };
+}
+
+export function addReport(pois, trip) {
+  return {
+    type: ADD_REPORT,
+    pois: pois,
+    trip: trip,
+  }
 }
 
 export function addPlanPOI(poiID) {

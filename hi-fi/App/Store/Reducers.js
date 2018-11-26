@@ -1,4 +1,4 @@
-import { CREATE_TRIP, RATE_TRIP, ADD_PLAN_POI, DEL_PLAN_POI, CHANGE_NOTE_POI, RATE_PLAN_POI, TOGGLE_ACTIVE, MOVE_POI, RESTORE_STATE, TOGGLE_ONBOARD } from './Actions';
+import { CREATE_TRIP, RATE_TRIP, ADD_PLAN_POI, DEL_PLAN_POI, CHANGE_NOTE_POI, RATE_PLAN_POI, TOGGLE_ACTIVE, MOVE_POI, RESTORE_STATE, TOGGLE_ONBOARD, ADD_REPORT } from './Actions';
 import {Colors} from '../Themes'
 const initialStoreState = {
 
@@ -20,6 +20,7 @@ const initialStoreState = {
 
   plannedTrip: [{notes: '', importance: 2, poi: "1", active: 'true'}, {notes: '', importance: 2, poi: "2", active: 'true'}],
   needOnboarding: 'false',
+  draftpois: [],
 };
 
 export function reducer(state = initialStoreState, action) {
@@ -161,6 +162,13 @@ export function reducer(state = initialStoreState, action) {
 
      return Object.assign({}, state, {
         plannedTrip: trip});
+  }
+
+  if (action.type === ADD_REPORT) {
+
+     return Object.assign({}, state, {
+        allpois: [...action.pois, ...state.allpois,],
+        alltrips: [action.trip, ...state.alltrips,]});
   }
 
    // kitchen sink

@@ -9,7 +9,7 @@ import { connect } from 'react-redux';
 import { MapView, Marker, Polyline} from 'expo';
 import { DrawerActions } from 'react-navigation';
 import { SwipeListView } from 'react-native-swipe-list-view';
-import {uid} from 'react-uid';
+
 
 import { changeNotePOI, delPlanPOI, ratePlanPOI, toggleActive, movePOI } from '../Store/Actions';
 import { Images, Colors, Metrics} from '../Themes';
