@@ -80,7 +80,7 @@ export function reducer(state = initialStoreState, action) {
     // modify both plannedTrip and derived status
      return Object.assign({}, state, {
         plannedTrip: [
-        {notes: '', importance: poi.authorRating, poi: action.poiID},
+        {notes: '', importance: poi.authorRating, poi: action.poiID, active: 'true'},
         ...state.plannedTrip,
       ], allpois: [poi, ...otherPois,]});
   }

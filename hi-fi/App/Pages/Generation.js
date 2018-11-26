@@ -143,8 +143,8 @@ addPOI = () => {
    }
    const pinColorName = this.state.category+this.state.rating;
    const poi = {header: this.state.header, text: this.state.text, authorRating: this.state.rating, images: [this.state.image],
-     author: this.state.author, category: this.state.category, derived: 0, pinColor: Colors[pinColorName], id: 0};
-   poi.id = shortid.generate();
+     author: this.state.author, category: this.state.category, derived: 0, pinColor: Colors[pinColorName], id: shortid.generate(), coordinate: {latitude: this.state.lat, longitude: this.state.lng}};
+
 
    this.setState({pois: [poi,...this.state.pois]});
    console.log([poi,...this.state.pois]);
@@ -180,9 +180,11 @@ submitTrip = () => {
      return;
    }
 
-   const poiList = this.state.pois.map(poi => poi.id);
-   const trip = {id: shortid.generate(), author: this.state.author, date: {}, title: this.state.title, pois: poiList, communityRating: 0, derived: 0,}
-   this.props.publish(this.state.pois, trip);
+   const poiSet = this.state.pois.map(poi => poi.id);
+
+   const trip = {id: shortid.generate(), author: this.state.author, date: {}, title: this.state.title, pois: poiSet, communityRating: 0, derived: 0,}
+   const poiList = this.state.pois.map(poi => {poi.tripID=trip.id; return poi});
+   this.props.publish(poiList, trip);
 
    // clean up the current and draftpois
 }

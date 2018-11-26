@@ -31,6 +31,7 @@ static navigationOptions = ({navigation}) => {
    const trip = navigation.getParam('trip', {title: 'My Trip'});
    return {
         headerTitle: trip.title,
+
         headerRight: <Icon
           type='material-community'
           name={navigation.getParam('rightIcon')}
@@ -173,15 +174,14 @@ render() {
              <Text style={{fontFamily: 'Helvetica Neue'}}>/{trip.derived}</Text>
            </View>
            <Text>by {trip.author} </Text>
-;
 
        </View>
-
        {!this.state.showMap && <ScrollView style ={styles.scroll}>
 
             {pois.map(item => (
                      <TouchableOpacity key={item.id} onPress={() => this.props.navigation.navigate('POI',{poi: item})}  >
-                       <Card image={item.images[0]} title={item.header}>
+
+                       <Card image={item.images[0]} imageStyle={styles.image} imageProps={{resizeMode: 'cover'}} wrapperStyle={styles.innerBox} title={item.header}>
 
                        <Text style={{marginBottom: 10}}>
                            {item.text}
@@ -293,6 +293,12 @@ navbar: {
   top: Metrics.screenHeight*0.8,
   width: Metrics.screenWidth,
   zIndex: 100,
+},
+image: {
+
+},
+innerBox: {
+  width: Metrics.screenWidth*0.9,
 },
 map: {
   flex:1,

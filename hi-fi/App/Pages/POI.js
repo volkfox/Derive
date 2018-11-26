@@ -52,6 +52,9 @@ render() {
       if (!Object.keys(poi).length) return null;
 
       const trip = this.props.alltrips.find(item => item.id === poi.tripID);
+      console.log(`Trip test:`);
+      console.log(trip);
+
       const images = poi.images.map( image => {
           const object = {
             url: image.uri,
@@ -70,9 +73,10 @@ render() {
 
             <View style = {styles.propContainer}>
 
-                { !this.state.plan && <TouchableOpacity onPress={() => this.props.navigation.navigate('Trip',{trip: trip})} >
+                { !this.state.plan && <TouchableOpacity onPress={() => this.props.navigation.navigate('Trip',{trip: trip, rightIcon: 'map-outline'})} >
                 <Text style={{color: Colors.buttonBlue}}>from trip by {poi.author} </Text>
                 </TouchableOpacity>}
+
                 {/* disable navigation to Trip screen if called from Plan task */}
                 { this.state.plan && <Text>from trip by {poi.author} </Text>}
             </View>
