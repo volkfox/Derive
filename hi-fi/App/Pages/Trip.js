@@ -220,7 +220,7 @@ render() {
         {pois.map(marker => (
           <MapView.Marker
               mapType={"mutedStandard"}
-              key={parseInt(marker.id)}
+              key={marker.id}
               coordinate={marker.coordinate}
               title={marker.header}
               description={"❤".repeat(Math.round(parseFloat(marker.authorRating)))}
@@ -266,8 +266,8 @@ function mapDispatchToProps(dispatch, props) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
     justifyContent: 'center',
+    alignItems: 'stretch',
   },
 
 rateContainer: {
@@ -293,6 +293,7 @@ navbar: {
   top: Metrics.screenHeight*0.8,
   width: Metrics.screenWidth,
   zIndex: 100,
+  backgroundColor: 'rgba(0, 0, 0, 0.05)',
 },
 image: {
 

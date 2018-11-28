@@ -29,7 +29,9 @@ const metrics = {
     medium: 40,
     large: 60,
     logo: 200
-  }
+  },
+  StanfordLat: 37.425187,
+  StanfordLng: -122.169362,
 }
 
 export default metrics

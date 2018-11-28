@@ -269,7 +269,7 @@ componentDidMount() {
           {this.state.markers.map(marker => (
             <MapView.Marker
                 mapType={"mutedStandard"}
-                key={parseInt(marker.id)}
+                key={marker.id}
                 coordinate={marker.coordinate}
                 title={marker.header}
                 description={"❤".repeat(Math.round(parseFloat(marker.authorRating)))}
@@ -327,9 +327,12 @@ const styles = StyleSheet.create({
     navbar: {
       flexDirection: 'row',
       justifyContent: 'space-around',
-      position: 'relative',
-      top: Metrics.screenHeight*0.75,
+      position: 'absolute',
+      top: Metrics.screenHeight*0.8,
+      alignSelf: 'stretch',
+      width: Metrics.screenWidth,
       zIndex: 100,
+      backgroundColor: 'rgba(0, 0, 0, 0.05)'
     },
     switch: {
         alignSelf: 'flex-end',

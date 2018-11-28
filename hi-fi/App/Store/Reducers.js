@@ -1,4 +1,4 @@
-import { CREATE_TRIP, RATE_TRIP, ADD_PLAN_POI, DEL_PLAN_POI, CHANGE_NOTE_POI, RATE_PLAN_POI, TOGGLE_ACTIVE, MOVE_POI, RESTORE_STATE, TOGGLE_ONBOARD, ADD_REPORT } from './Actions';
+import { CREATE_TRIP, RATE_TRIP, ADD_PLAN_POI, DEL_PLAN_POI, CHANGE_NOTE_POI, RATE_PLAN_POI, TOGGLE_ACTIVE, MOVE_PLAN_POI, RESTORE_STATE, TOGGLE_ONBOARD, ADD_REPORT, ADD_DRAFT_POI } from './Actions';
 import {Colors} from '../Themes'
 const initialStoreState = {
 
@@ -109,7 +109,7 @@ export function reducer(state = initialStoreState, action) {
         plannedTrip: trip});
   }
 
-  if (action.type === MOVE_POI) {
+  if (action.type === MOVE_PLAN_POI) {
 
     let trip = state.plannedTrip;
     // avoid spurious requests
@@ -167,8 +167,24 @@ export function reducer(state = initialStoreState, action) {
   if (action.type === ADD_REPORT) {
 
      return Object.assign({}, state, {
+        draftpois: [],
         allpois: [...action.pois, ...state.allpois,],
         alltrips: [action.trip, ...state.alltrips,]});
+  }
+
+  if (action.type === ADD_DRAFT_POI) {
+
+     const updated = [...state.draftpois];
+     const replaceIndex = updated.findIndex(el => el.id === action.poi.id);
+
+     if (replaceIndex === -1) {
+       updated.push(action.poi);
+     } else {
+       updated[replaceIndex] = action.poi;
+     }
+
+     return Object.assign({}, state, {
+        draftpois: updated});
   }
 
    // kitchen sink

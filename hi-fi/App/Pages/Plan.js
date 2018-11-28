@@ -1,6 +1,6 @@
 
 import React from 'react';
-import {  Modal, StyleSheet, Text, View, TextInput, ScrollView, Switch, TouchableOpacity, TouchableWithoutFeedback, SafeAreaView, Linking, Image, KeyboardAvoidingView } from 'react-native';
+import { Modal, StyleSheet, Text, View, TextInput, ScrollView, Switch, TouchableOpacity, TouchableWithoutFeedback, SafeAreaView, Linking, Image, KeyboardAvoidingView } from 'react-native';
 import { Card, Button } from 'react-native-elements';
 import { Icon } from 'react-native-elements';
 import ImageViewer from 'react-native-image-zoom-viewer';
@@ -387,6 +387,7 @@ componentDidMount() {
     top: Metrics.screenHeight*0.8,
     width: Metrics.screenWidth,
     zIndex: 100,
+    backgroundColor: 'rgba(0, 0, 0, 0.05)',
   },
   scroll: {
     alignSelf: 'stretch',
