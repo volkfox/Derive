@@ -39,7 +39,7 @@ Core tasks (**Explore, Plan, Report**) are accessed via edge swipe  (also duplic
      *  Swiping POI right allows to fill a "notes" post-it
      *  Swiping POI left reveals drop and move icons
      *  Single-clicking POI card closes the open row
-     *  Long clicking POI card leads into *POI* screen (nav to trip feature will be disabled there)
+     *  Clicking POI card leads into *POI* screen (nav to trip link will be disabled there)
      *  Map representation uses same features as other map screens AND ignores disabled POIs.
  
 **Project limitations:**
