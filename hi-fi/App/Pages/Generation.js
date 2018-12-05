@@ -1,16 +1,17 @@
-
+//Post
 import React from 'react';
-import { StyleSheet, Text, View, Button, TextInput, Image, ScrollView, TouchableOpacity, Alert, KeyboardAvoidingView} from 'react-native';
+import { StyleSheet, Text, View, Button, TextInput, Image, ScrollView, TouchableOpacity, Alert, KeyboardAvoidingView, SafeAreaView} from 'react-native';
 import { Images, Colors, Metrics } from '../Themes';
 import { DrawerActions } from 'react-navigation-drawer';
 import { Icon, Card } from 'react-native-elements';
 import { ImagePicker, Permissions } from 'expo';
 import StarRating from 'react-native-star-rating';
 import Dialog, { DialogContent, DialogButton, DialogTitle } from 'react-native-popup-dialog';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import { MapView, Marker, Polyline} from 'expo';
 import { connect } from 'react-redux';
 
-import { addReport } from '../Store/Actions';
+import { addReport, addDraftPOI } from '../Store/Actions';
 
  class Generation extends React.Component {
 
@@ -19,47 +20,60 @@ import { addReport } from '../Store/Actions';
         super(props);
         this.mapRef = null;
         this.note = '';
-        this.pois = [this.state,];
         this.props.navigation.setParams({ title: this.state.title });
         this.props.navigation.setParams({ setTitle: this.setTitle });
-        this.props.navigation.setParams({ addPOI: this.addPOI})
+
+        this.props.navigation.setParams({ submitPOI: this.submitPOI})
         this.props.navigation.setParams({ submitTrip: this.submitTrip})
   }
 
 
-
 state = {
-      header: '',
-      image: {uri: 'http://hdimages.org/wp-content/uploads/2017/03/placeholder-image4-768x432.jpg'},
-      lat: 37.42410599999999,
-      lng: -122.1660756,
-      author: 'Joe Appleseed',
-      authorRating: 0,
-      text: '',
-      category: 'sleep',
-      title: 'New report',
 
+      author: 'James Landay',
+      title: '   Post',
       titleDialogVisible: false,
       titleText: '',
       showMap: false,
-      pois: [],
+
+      header: '',
+      id: null,
+      authorRating: 0,
+      category: 'todo',
+      derived: 0,
+      lat: Metrics.StanfordLat,
+      lng: Metrics.StanfordLng,
+      image: {uri: 'http://hdimages.org/wp-content/uploads/2017/03/placeholder-image4-768x432.jpg'},
+      note: '',
+      text: '',
 };
 
+resetState = () => {
+  this.setState({header: '', text: '', note: '', id: null, authorRating: 0, category: 'todo', derived: 0,
+  lat: Metrics.StanfordLat, lng: Metrics.StanfordLng, image: {uri: 'http://hdimages.org/wp-content/uploads/2017/03/placeholder-image4-768x432.jpg'} });
+}
+
+copyState = (poi) => {
+  this.setState(poi);
+  this.setState({note: poi.header+'\n\n'+poi.text});
+  this.setState({image: poi.images[0]});
+  this.setState({lat: poi.coordinate.latitude, lng: poi.coordinate.longitude});
+}
 
 
 static navigationOptions = ({navigation}) => {
 return {
         headerTitle: <TouchableOpacity onPress={navigation.getParam('setTitle')}>
-         <Text style={{fontWeight: '600'}}>{navigation.getParam('title','Untitled')}</Text>
+         <Text style={{fontSize: 20,fontWeight: '600'}}>{navigation.getParam('title','Untitled')}</Text>
         </TouchableOpacity>,
-        headerLeft:
-            <Icon
+        //headerLeft:
+            /*<Icon
                 name="menu"
                 size={30}
                 color="gray"
                 onPress={ () =>
                          navigation.dispatch(DrawerActions.toggleDrawer())}
-            />,
+            />,*/
           headerRight: (
             <View style={styles.iconContainer} >
               <Icon
@@ -68,7 +82,7 @@ return {
                 size={30}
                 iconStyle={styles.shareIcon}
                 color={Colors.appleBlue}
-                onPress={ navigation.getParam('addPOI')}
+                onPress={ navigation.getParam('submitPOI')}
                 />
               <Icon
                     name="ios-share"
@@ -89,20 +103,21 @@ _pickImage = async () => {
       aspect: [16, 9],
     });
 
-    if (!result.cancelled && result.exif) {
-      let {GPSLatitude, GPSLongitude} = result.exif;
-      if (GPSLatitude && GPSLongitude) {
-          if (result.exif.GPSLatitudeRef === 'S') GPSLatitude = -GPSLatitude;
-          if (result.exif.GPSLongitudeRef === 'W') GPSLongitude = -GPSLongitude;
-          this.setState({ image: {uri: result.uri}, lat: GPSLatitude, lng: GPSLongitude});
-      }
+    if (!result.cancelled) {
 
-    } else {
-      this.props.navigation.dispatch(DrawerActions.toggleDrawer());
+      if (result.exif) {
+            let {GPSLatitude, GPSLongitude} = result.exif;
+            if (GPSLatitude && GPSLongitude) {
+                if (result.exif.GPSLatitudeRef === 'S') GPSLatitude = -GPSLatitude;
+                if (result.exif.GPSLongitudeRef === 'W') GPSLongitude = -GPSLongitude;
+                this.setState({lat: GPSLatitude, lng: GPSLongitude});
+            }
+      }
+        this.setState({ image: {uri: result.uri}});
     }
 }
 
-validGPS =  () => !(this.state.lat === 37.42410599999999 && this.state.lng === -122.1660756);
+
 
 _checkCameraPermissions = async  () => {
 
@@ -113,16 +128,22 @@ _checkCameraPermissions = async  () => {
   }
 }
 
-addPOI = () => {
+validGPS =  () => {
+ return !(this.state.lat === Metrics.StanfordLat && this.state.lng === Metrics.StanfordLng);
+}
 
+submitPOI = (e, copyOver) => {
 
-   if (!this.validGPS()) {
-     Alert.alert(
+  this.setState({showMap: false});
+
+  if (!this.validGPS()) {
+
+       !copyOver && Alert.alert(
            '',
            'Please add an image with GPS or tag it on the map',
            [
-             {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
-             {text: 'OK', onPress: () => console.log('OK Pressed')},
+             {text: 'Cancel', onPress: () => {}, style: 'cancel'},
+             {text: 'OK', onPress: () => {}},
            ],
            { cancelable: false }
          );
@@ -130,31 +151,35 @@ addPOI = () => {
    }
 
    if (!this.state.header) {
-     Alert.alert(
+
+     !copyOver && Alert.alert(
            '',
-           'Please fill the first line in description',
+           'Please fill the title line',
            [
              {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
              {text: 'OK', onPress: () => console.log('OK Pressed')},
            ],
            { cancelable: false }
          );
+
      return;
    }
-   const pinColorName = this.state.category+this.state.rating;
-   const poi = {header: this.state.header, text: this.state.text, authorRating: this.state.rating, images: [this.state.image],
-     author: this.state.author, category: this.state.category, derived: 0, pinColor: Colors[pinColorName], id: shortid.generate(), coordinate: {latitude: this.state.lat, longitude: this.state.lng}};
+   const pinColorName = this.state.category+this.state.authorRating;
+   const poi = {id: this.state.id?this.state.id:shortid.generate(), category: this.state.category, header: this.state.header, text: this.state.text, images: [this.state.image], coordinate: {latitude: this.state.lat, longitude: this.state.lng}, authorRating: this.state.authorRating,
+     pinColor: Colors[pinColorName], derived: 0, author: this.state.author, };
 
+   // 1. clear the current poi record
+   this.resetState();
+   // 2. save to redux
+   this.props.upsert(poi);
 
-   this.setState({pois: [poi,...this.state.pois]});
-   console.log([poi,...this.state.pois]);
-
-   // clear up.
 }
 
 submitTrip = () => {
 
-   if (!this.pois.length) {
+   this.setState({showMap: false});
+
+   if (!this.props.draftpois.length) {
      Alert.alert(
            '',
            'Please add at least one point of interest',
@@ -167,7 +192,7 @@ submitTrip = () => {
      return;
    }
 
-   if (this.state.title === 'New report') {
+   if (this.state.title === 'Post') {
      Alert.alert(
            '',
            'Please name this report',
@@ -180,13 +205,24 @@ submitTrip = () => {
      return;
    }
 
-   const poiSet = this.state.pois.map(poi => poi.id);
+   const poiSet = this.props.draftpois.map(poi => poi.id);
 
    const trip = {id: shortid.generate(), author: this.state.author, date: {}, title: this.state.title, pois: poiSet, communityRating: 0, derived: 0,}
-   const poiList = this.state.pois.map(poi => {poi.tripID=trip.id; return poi});
+   const poiList = this.props.draftpois.map(element => {element.tripID=trip.id; return element});
    this.props.publish(poiList, trip);
 
-   // clean up the current and draftpois
+   Alert.alert(
+         '',
+         'Report published',
+         [
+           {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
+           {text: 'OK', onPress: () => console.log('OK Pressed')},
+         ],
+         { cancelable: false }
+       );
+   // clean up the current
+   this.resetState();
+   this.props.navigation.setParams({ title: 'Post'})
 }
 
 setTitle = () => {
@@ -241,7 +277,7 @@ parseNote = (note) => {
 
 componentDidMount() {
   this._checkCameraPermissions();
-
+  this.resetState();
   //this._pickImage();
 }
 
@@ -249,11 +285,11 @@ componentDidMount() {
 render() {
 
   let { image } = this.state;
-
+  const pinColorName = this.state.category+this.state.authorRating;
 
   return (
 
- <View style={styles.container}>
+ <SafeAreaView style={styles.container}>
 
       <Dialog
           visible={this.state.titleDialogVisible}
@@ -289,7 +325,7 @@ render() {
       </Dialog>
 
 
-    <ScrollView style={styles.scroller} ref={component => { this.myScrollView = component; }}>
+    {!this.state.showMap && <ScrollView style={styles.scroller} ref={component => { this.myScrollView = component; }}>
       <Card style={styles.card} wrapperStyle={styles.cardWrapper} containerStyle={styles.cardContainer}>
           <TouchableOpacity onPress={this._pickImage}>
             <Image source={this.state.image} style={styles.cardImage} />
@@ -299,9 +335,9 @@ render() {
             <StarRating
                 disabled={false}
                 maxStars={5}
-                rating={this.state.rating}
+                rating={this.state.authorRating}
                 selectedStar={(rating) => {
-                    this.setState({rating: rating});
+                    this.setState({authorRating: rating});
                   }
                 }
 
@@ -339,8 +375,7 @@ render() {
             />
 
             <Icon
-              name='map-outline'
-              type='material-community'
+              name='place'
               size={30}
               iconStyle={styles.icon}
               color={this.validGPS()?Colors.appleBlue:'red'}
@@ -352,15 +387,17 @@ render() {
 
               <KeyboardAvoidingView style={{ height: 500, justifyContent: "flex-start" }}>
                   <TextInput
-                    placeholder={'Title \n \n What happened here?'}
+                    placeholder={'Title \n \n Say more about this place'}
                     editable = {true}
-                    onChangeText={(text) => this.note=text}
+                    defaultValue = {this.state.note}
+                    value = {this.state.note}
+                    onChangeText={(text) => this.setState({note: text})}
                     multiline = {true}
                     numberOfLines = {10}
                     style = {styles.textInput}
                     onFocus={() => this.myScrollView.scrollTo({ x: 0, y: Metrics.screenWidth*.9, animated: true })}
                     onBlur = { () => {
-                      this.parseNote(this.note);
+                      this.parseNote(this.state.note);
                       this.myScrollView.scrollTo({ x: 0, y: 0, animated: true });
                       }
                     }
@@ -369,13 +406,67 @@ render() {
               </KeyboardAvoidingView>
             </Card>
     </ScrollView>
-  </View>
+    }
 
+    {this.state.showMap &&
 
-  );
+        <MapView
+          style={styles.map}
+          ref={(ref) => { this.mapRef = ref }}
+          onLayout={() => this.mapRef.fitToElements(true)}
+          mapType={"mutedStandard"}
+
+         >
+
+          <MapView.Marker
+              coordinate={{latitude: this.state.lat, longitude: this.state.lng}}
+              title={this.state.header?this.state.header:"Untitled"}
+              description={"Drag me to image location"}
+              pinColor={'red'}
+              draggable={true}
+              onDragEnd = { (e) => this.setState({lat: e.nativeEvent.coordinate.latitude, lng: e.nativeEvent.coordinate.longitude}) }
+          />
+
+        </MapView>
 
   }
-}
+
+  {this.state.showMap && <View style={styles.navbar}>
+      <Icon
+        containerStyle = {styles.backIcon}
+        name='ios-arrow-back'
+        type='ionicon'
+        onPress={() => this.setState({showMap: false})}
+        size = {40}
+        underlayColor = 'transparent'
+        color={Colors.appleBlue}
+      />
+  </View>
+  }
+
+  {!this.state.showMap &&
+
+     <ScrollView style={styles.exposeRibbon} contentContainerStyle={styles.exposeContainer} horizontal='true'>
+
+       {this.props.draftpois.map(poi => (
+          <TouchableOpacity key={poi.id} onPress={() =>  {this.submitPOI(true, true); this.copyState(poi)}}>
+
+               <Image
+                 style={{width: 66, height: 58, margin: 10}}
+                 source={poi.images[0]}
+               />
+           </TouchableOpacity>
+       ))}
+
+     </ScrollView>
+  }
+
+  </SafeAreaView>
+
+);  // end return()
+
+} // end render{}
+}  // end class
 
 const shortid = require('shortid');
 
@@ -387,7 +478,8 @@ function mapStateToProps(storeState) {
 
 function mapDispatchToProps(dispatch, props) {
   return {
-    publish: (pois, trip) => dispatch(addReport(pois, trip)),
+    publish: (poiList, trip) => dispatch(addReport(poiList, trip)),
+    upsert: (poi) => dispatch(addDraftPOI(poi)),
   };
 }
 
@@ -434,7 +526,7 @@ const styles = StyleSheet.create({
       alignSelf: 'stretch',
       marginTop: 10,
       marginBottom: 0,
-      marginRight: 20,
+      marginRight: 30,
       paddingLeft: 5,
       paddingRight: 5,
   },
@@ -444,7 +536,45 @@ const styles = StyleSheet.create({
   shareIcon: {
     marginLeft: 20,
     marginRight: 5,
-  }
+  },
+  map: {
+    flex:1,
+    alignSelf: 'stretch',
+  },
+  navbar: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'flex-start',
+    position: 'absolute',
+    alignSelf: 'stretch',
+    top: Metrics.screenHeight*0.8,
+    width: Metrics.screenWidth,
+    zIndex: 100,
+    backgroundColor: 'rgba(0, 0, 0, 0.05)',
+  },
+  exposeRibbon: {
+    position: 'absolute',
+    alignSelf: 'stretch',
+    top: Metrics.screenHeight*0.7,
+    width: Metrics.screenWidth,
+    zIndex: 100,
+    backgroundColor: 'rgba(0, 0, 0, 0.05)',
+  },
+  exposeContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'flex-start',
+  },
+  expose: {
+    position: 'absolute',
+    width: Metrics.screenWidth,
+    top: Metrics.screenHeight*0.7,
+    zIndex: 120,
+  },
+  backIcon:
+  {
+
+  },
 });
 
   export default connect(mapStateToProps, mapDispatchToProps)(Generation);

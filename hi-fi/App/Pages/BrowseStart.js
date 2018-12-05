@@ -5,9 +5,11 @@ import {List, ListItem, Icon} from 'react-native-elements';
 import { DrawerActions } from 'react-navigation';
 import { connect } from 'react-redux';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
-
+import { LinearGradient } from 'expo';
 import { Images, Colors, Metrics } from '../Themes';
 import GooglePlacesInput from '../Themes/GooglePlacesInput';
+import { Dimensions } from 'react-native';
+
 
 class BrowseStart extends React.Component {
   constructor(props) {
@@ -24,17 +26,19 @@ state = {
         inputTextColor: 'black',
  }
 
+
 static navigationOptions = ({navigation}) => {
 
     return {
-        headerLeft:
+
+        /*headerLeft:
             <Icon
                 name="menu"
                 size={30}
                 color="gray"
                 onPress={ () =>
                          navigation.dispatch(DrawerActions.toggleDrawer())}
-            />,
+            />,*/
     }
 };
 
@@ -60,9 +64,9 @@ runSearch = (data, details) => {
     const description = details.description?details.description:details.formatted_address;
 
     let startWithMap =  false;
-    if (description == 'Current Location') startWithMap = true;
+    if (description == 'Current Location') startWithMap = false;
     // need push here?
-    this.props.navigation.navigate('Trips',{geodata: {geometry: details.geometry, description: description}, startWithMap: startWithMap, rightIcon: 'map-outline'});
+    this.props.navigation.navigate('Trips',{geodata: {geometry: details.geometry, description: description}, startWithMap: startWithMap});
 }
 
 _keyExtractor = (item, index) => item.id;
@@ -131,20 +135,31 @@ render() {
       return (
 
         <SafeAreaView style={styles.container}>
-
+<LinearGradient colors={['#abfad3','#99CCFF']}
+       start={{ x: 1, y: 1 }}
+       end={{ x: 0, y: 0 }}>
           <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
 
 
           <View style={styles.searchSection}>
-
            <GooglePlacesInput searchCallBack = {this.runSearch} location={this.state.location}/>
-
           </View>
           </TouchableWithoutFeedback>
 
           <View style={styles.teaser}>
 
+            <Text
+            style={{ 
+              backgroundColor: 'transparent', 
+              fontFamily: 'AvenirNext', 
+              fontSize: 21, 
+              fontWeight: 'bold',
+              textAlign: 'left',
+              color: '#727272' }}
+            >  Your Past Trips</Text>
+
                 <FlatList
+                    style={{ backgroundColor: 'transparent' }}
                     data={allpois}
                     extraData={allpois}
                     keyExtractor={this._keyExtractor}
@@ -157,6 +172,7 @@ render() {
                 />
          </View>
 
+</LinearGradient>
       </SafeAreaView>
       );
 
@@ -175,7 +191,7 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     justifyContent: 'flex-start',
     alignItems: 'center',
-    backgroundColor: '#fff',
+    backgroundColor: 'transparent',
   },
 
   searchIcon: {
@@ -190,7 +206,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'flex-start',
-    backgroundColor: '#fff',
+    backgroundColor: 'transparent',
     paddingTop: Metrics.screenHeight*0.1,
 },
   searchField: {
