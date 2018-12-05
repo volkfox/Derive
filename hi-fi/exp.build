@@ -1,0 +1,10 @@
+exp build:ios \
+    --non-interactive \
+    --release-channel qa \
+    --team-id "8YJ2342CPM" \
+    --clear-credentials \
+    --clear-dist-cert \
+    --provisioning-profile-path "~Downloads/CS147_18AU.mobileprovision/cert_adhoc.mobileprovision"
+
+# --dist-p12-path "$IOS_CERTIFICATES_FOLDER/exported_cer.p12" \
+# --push-p12-path "$IOS_CERTIFICATES_FOLDER/exported_aps.p12" \

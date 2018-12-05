@@ -27,10 +27,11 @@ state = {
 static navigationOptions = ({navigation}) => {
 
     return {
-        headerLeft:
-            <Icon
-                name="menu"
+        headerLeft: <Icon
+                name='ios-menu'
+                type='ionicon'
                 size={30}
+                containerStyle={{marginLeft: 5}}
                 color="gray"
                 onPress={ () =>
                          navigation.dispatch(DrawerActions.toggleDrawer())}

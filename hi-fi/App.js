@@ -54,8 +54,7 @@ const PlanNavigator = createStackNavigator(
 const GenerationNavigator = createStackNavigator({
 
   Generation: pages.Generation,
-  Trip: pages.MyTrip,
-  POI: pages.EditPOI,
+  MyTrip: pages.MyTrip,
 }, {
      headerMode: 'float',
      initialRouteName: 'Generation',
@@ -77,14 +76,21 @@ const CustomDrawerContentComponent = (props) => (
   </ScrollView>
 );
 
+
+
 const DrawerNav = createDrawerNavigator({
   Explore: {screen: BrowseNavigator},
   Plan: {screen: PlanNavigator},
-  Report:  {screen: GenerationNavigator},
+  Share:  {screen: GenerationNavigator},
   },
   { initialRouteName: 'Explore',
     contentComponent: CustomDrawerContentComponent,
+    navigationOptions: ({navigation}) => {
 
+       return {
+         rightIcon: 'map-outline',
+       }
+   }
 });
 
 // redux debug midddleware

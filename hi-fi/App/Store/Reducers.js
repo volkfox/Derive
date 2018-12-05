@@ -1,4 +1,4 @@
-import { CREATE_TRIP, RATE_TRIP, ADD_PLAN_POI, DEL_PLAN_POI, CHANGE_NOTE_POI, RATE_PLAN_POI, TOGGLE_ACTIVE, MOVE_PLAN_POI, RESTORE_STATE, TOGGLE_ONBOARD, ADD_REPORT, ADD_DRAFT_POI } from './Actions';
+import { CREATE_TRIP, RATE_TRIP, ADD_PLAN_POI, DEL_PLAN_POI, CHANGE_NOTE_POI, RATE_PLAN_POI, TOGGLE_ACTIVE, MOVE_PLAN_POI, RESTORE_STATE, TOGGLE_ONBOARD, ADD_REPORT, ADD_DRAFT_POI, DEL_DRAFT_POI, SHIFT_DRAFT_POI, RATE_DRAFT_POI } from './Actions';
 import {Colors} from '../Themes'
 const initialStoreState = {
 
@@ -124,7 +124,7 @@ export function reducer(state = initialStoreState, action) {
      if (action.direction === 'down') {
         if (targetIndex === trip.length - 1) return state;
         [trip[targetIndex], trip[targetIndex+1]] = [trip[targetIndex+1], trip[targetIndex]];
-      }
+    }
 
      return Object.assign({}, state, {
         plannedTrip: trip});
@@ -181,6 +181,52 @@ export function reducer(state = initialStoreState, action) {
        updated.push(action.poi);
      } else {
        updated[replaceIndex] = action.poi;
+     }
+
+     return Object.assign({}, state, {
+        draftpois: updated});
+  }
+
+  if (action.type === DEL_DRAFT_POI) {
+
+     const updated = state.draftpois.filter(el => el.id !== action.id);
+
+     return Object.assign({}, state, {
+        draftpois: updated});
+  }
+
+  if (action.type === SHIFT_DRAFT_POI) {
+
+    let updated = state.draftpois;
+    // avoid spurious requests
+    const targetIndex = updated.findIndex(item => item.id===action.id);
+    if (targetIndex === -1) return state;
+
+    if (action.direction === 'up') {
+       if (targetIndex === 0) return state;
+       [updated[targetIndex], updated[targetIndex-1]] = [updated[targetIndex-1], updated[targetIndex]];
+     }
+
+     if (action.direction === 'down') {
+        if (targetIndex === updated.length - 1) return state;
+        [updated[targetIndex], updated[targetIndex+1]] = [updated[targetIndex+1], updated[targetIndex]];
+    }
+
+     return Object.assign({}, state, {
+        draftpois: updated});
+  }
+
+  if (action.type === RATE_DRAFT_POI) {
+
+     const updated = [...state.draftpois];
+     const updateIndex = updated.findIndex(el => el.id === action.id);
+     console.log("updateIndex "+updateIndex);
+     if (updateIndex === -1) {
+       return state;
+     } else {
+       const pinColorName = updated[updateIndex].category+action.rating;
+       updated[updateIndex].authorRating = action.rating;
+       updated[updateIndex].pinColor = Colors[pinColorName];
      }
 
      return Object.assign({}, state, {

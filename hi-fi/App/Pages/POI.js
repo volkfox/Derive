@@ -74,7 +74,7 @@ render() {
             <View style = {styles.propContainer}>
 
                 { !this.state.plan && <TouchableOpacity onPress={() => this.props.navigation.navigate('Trip',{trip: trip, rightIcon: 'map-outline'})} >
-                <Text style={{color: Colors.buttonBlue}}>from trip by {poi.author} </Text>
+                <Text style={{color: Colors.buttonBlue}}>by {poi.author} </Text>
                 </TouchableOpacity>}
 
                 {/* disable navigation to Trip screen if called from Plan task */}
@@ -97,7 +97,7 @@ render() {
 
                 <Card image={poi.images[0]} >
 
-
+                {/* changed rating from hearts to number
                 <View style = {styles.rateContainer}>
                     <StarRating
                     disabled={true}
@@ -110,6 +110,11 @@ render() {
                     fullStarColor={'lightgray'}
                     starSize={20}
                     />
+                    <Text style={{fontFamily: 'Helvetica Neue'}}>/{derived}</Text>
+                </View>
+                */}
+                <View style = {styles.rateContainer}>
+                    <Text style={{fontStyle: 'italic'}}>{'Author rating: '+poi.authorRating}</Text>
                     <Text style={{fontFamily: 'Helvetica Neue'}}>/{derived}</Text>
                 </View>
                 <Text style={{marginBottom: 10}}>

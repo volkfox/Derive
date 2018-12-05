@@ -16,6 +16,7 @@ const colors = {
   bloodOrange: '#fb5f26',
   snow: 'white',
   ember: 'rgba(164, 0, 48, 0.5)',
+  glassOverlay: 'rgba(0, 0, 0, 0.15)',
   fire: '#e73536',
   drawer: 'rgba(30, 30, 29, 0.95)',
   eggplant: '#251a34',

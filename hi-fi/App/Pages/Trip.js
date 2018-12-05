@@ -102,22 +102,31 @@ navigateToMarker = (event) => {
       return (
 
       <View style={styles.navbar}>
-        <Icon
-          name='ios-bed'
-          type='ionicon'
-          onPress={() => this.toggleFilter('sleepFilter')}
-          size = {40}
-          underlayColor = 'transparent'
-          color={this.state.sleepFilter?Colors.sleep3:'lightgray'}
-        />
-        <Icon
-          name='ios-restaurant'
-          type='ionicon'
-          onPress={() => this.toggleFilter('foodFilter')}
-          size = {40}
-          underlayColor = 'transparent'
-          color={this.state.foodFilter?Colors.food3:'lightgray'}
-        />
+        <View style={styles.actiontab}>
+          <Icon
+            name='ios-bed'
+            type='ionicon'
+            onPress={() => this.toggleFilter('sleepFilter')}
+            size = {40}
+            underlayColor = 'transparent'
+            color={this.state.sleepFilter?Colors.sleep3:'lightgray'}
+          />
+        <Text>sleep</Text>
+       </View>
+
+       <View style={styles.actiontab}>
+         <Icon
+           name='ios-restaurant'
+           type='ionicon'
+           onPress={() => this.toggleFilter('foodFilter')}
+           size = {40}
+           underlayColor = 'transparent'
+           color={this.state.foodFilter?Colors.food3:'lightgray'}
+         />
+       <Text>eat</Text>
+      </View>
+
+      <View style={styles.actiontab}>
         <Icon
           name='ios-image'
           type='ionicon'
@@ -126,6 +135,8 @@ navigateToMarker = (event) => {
           underlayColor = 'transparent'
           color={this.state.todoFilter?Colors.todo3:'lightgray'}
         />
+      <Text>do</Text>
+     </View>
      </View>
    )
   }
@@ -290,10 +301,13 @@ navbar: {
   flexDirection: 'row',
   justifyContent: 'space-around',
   position: 'absolute',
-  top: Metrics.screenHeight*0.8,
+  top: Metrics.screenHeight*0.7,
   width: Metrics.screenWidth,
   zIndex: 100,
-  backgroundColor: 'rgba(0, 0, 0, 0.05)',
+  backgroundColor: Colors.glassOverlay,
+},
+actiontab: {
+  alignItems: 'center',
 },
 image: {
 

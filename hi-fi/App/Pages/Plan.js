@@ -6,7 +6,7 @@ import { Icon } from 'react-native-elements';
 import ImageViewer from 'react-native-image-zoom-viewer';
 import StarRating from 'react-native-star-rating';
 import { connect } from 'react-redux';
-import { MapView, Marker, Polyline} from 'expo';
+import { MapView, Marker, Polyline } from 'expo';
 import { DrawerActions } from 'react-navigation';
 import { SwipeListView } from 'react-native-swipe-list-view';
 
@@ -21,6 +21,7 @@ constructor(props) {
       this.mapRef = null;
       this.rowRef = null;
       this.rowOpen = false;
+      this.props.navigation.setParams({ hideMapDraw: this.hideMapDraw});
 }
 
 state = {
@@ -37,17 +38,18 @@ state = {
    static navigationOptions = ({navigation}) => {
       return ({
               headerTitle: 'Plan',
-              headerLeft:
-                  <Icon
-                      name="menu"
+              headerLeft: <Icon
+                      name='ios-menu'
+                      type='ionicon'
                       size={30}
+                      containerStyle={{marginLeft: 5}}
                       color="gray"
-                      onPress={ () =>
-                               navigation.dispatch(DrawerActions.toggleDrawer() )}
+                      onPress={ navigation.getParam('hideMapDraw', null) }
+
                   />,
                   headerRight: <Icon
                     type='material-community'
-                    name={navigation.getParam('rightIcon')}
+                    name={navigation.getParam('rightIcon', 'map-outline')}
                     size={30}
                     containerStyle={{marginRight: 5}}
                     color={Colors.appleBlue}
@@ -56,7 +58,11 @@ state = {
               })
 }
 
-
+hideMapDraw = () => {
+  this.props.navigation.setParams({rightIcon: 'map-outline'});
+  this.setState({showMap: false});
+  this.props.navigation.dispatch(DrawerActions.toggleDrawer());
+}
 
 toggleShowMap = () => {
 
@@ -100,30 +106,44 @@ navigateToMarker = (event) => {
          return (
 
          <View style={styles.navbar}>
-           <Icon
-             name='ios-bed'
-             type='ionicon'
-             onPress={() => this.toggleFilter('sleepFilter')}
-             size = {40}
-             underlayColor = 'transparent'
-             color={this.state.sleepFilter?Colors.sleep3:'lightgray'}
-           />
-           <Icon
-             name='ios-restaurant'
-             type='ionicon'
-             onPress={() => this.toggleFilter('foodFilter')}
-             size = {40}
-             underlayColor = 'transparent'
-             color={this.state.foodFilter?Colors.food3:'lightgray'}
-           />
+
+           <View style={styles.actiontab}>
+             <Icon
+               name='ios-bed'
+               type='ionicon'
+               onPress={() => this.setState({category: 'sleep'})}
+               size = {40}
+               underlayColor = 'transparent'
+               color={this.state.sleepFilter?Colors.sleep3:'lightgray'}
+             />
+           <Text>sleep</Text>
+          </View>
+
+          <View style={styles.actiontab}>
+            <Icon
+              name='ios-restaurant'
+              type='ionicon'
+              onPress={() => this.setState({category: 'food'})}
+              size = {40}
+              underlayColor = 'transparent'
+              color={this.state.foodFilter?Colors.food3:'lightgray'}
+            />
+          <Text>eat</Text>
+         </View>
+
+         <View style={styles.actiontab}>
            <Icon
              name='ios-image'
              type='ionicon'
-             onPress={() => this.toggleFilter('todoFilter')}
+             onPress={() => this.setState({category: 'todo'})}
              size = {40}
              underlayColor = 'transparent'
              color={this.state.todoFilter?Colors.todo3:'lightgray'}
            />
+         <Text>do</Text>
+        </View>
+
+
         </View>
       )
      }
@@ -163,6 +183,7 @@ componentDidMount() {
 
 
          {!this.state.showMap && <ScrollView style={styles.scroll}>
+
             <SwipeListView
 
             // items are planned trip entries
@@ -175,9 +196,10 @@ componentDidMount() {
                    data={trip}
                    keyExtractor = { (item) => JSON.stringify(item) }
                    leftOpenValue={Metrics.screenWidth*0.6}
-                   rightOpenValue={-75}
+                   rightOpenValue={-85}
                    previewRowKey={JSON.stringify(trip[0])}
-                   previewOpenValue={-10}
+                   previewOpenValue={-30}
+                   previewDuration={900}
 
                    renderItem={ (element, rowMap) => {
                      // this is poi entry in the trip
@@ -217,7 +239,8 @@ componentDidMount() {
 
                                     />
                                     {item.active && <Icon
-                                      name='radio-button-unchecked'
+                                      name='md-checkbox-outline'
+                                      type='ionicon'
                                       onPress={() => {
                                         this.props.toggleState(item.poi, false);
                                         let changeMarker = Object.assign({}, this.state.changeMarker);
@@ -226,10 +249,11 @@ componentDidMount() {
                                       }
                                       size = {30}
                                       underlayColor = 'transparent'
-                                      color={Colors.buttonBlue}
+                                      color={'lightgray'}
                                     />}
                                     {!item.active && <Icon
-                                      name='check'
+                                      name='md-checkbox-outline'
+                                      type='ionicon'
                                       onPress={() => {
                                         this.props.toggleState(item.poi, true);
                                         let changeMarker = Object.assign({}, this.state.changeMarker);
@@ -327,6 +351,12 @@ componentDidMount() {
                 onSelect={e => this.setState({activeMarker: e.nativeEvent})}
             />
           ))}
+          <MapView.Polyline
+               coordinates={pois.map(item => ({latitude: item.coordinate.latitude, longitude: item.coordinate.longitude}))}
+               strokeColor="#000" // fallback for when `strokeColors` is not supported by the map-provider
+               strokeColors={pois.map(item => 'red')}
+               strokeWidth={2}
+             />
         </MapView>
       }
 
@@ -384,10 +414,13 @@ componentDidMount() {
     flexDirection: 'row',
     justifyContent: 'space-around',
     position: 'absolute',
-    top: Metrics.screenHeight*0.8,
+    top: Metrics.screenHeight*0.7,
     width: Metrics.screenWidth,
     zIndex: 100,
-    backgroundColor: 'rgba(0, 0, 0, 0.05)',
+    backgroundColor: Colors.glassOverlay,
+  },
+  actiontab: {
+    alignItems: 'center',
   },
   scroll: {
     alignSelf: 'stretch',

@@ -5,7 +5,7 @@ import POI from './POI';
 import Plan from './Plan';
 import Generation from './Generation';
 import MyTrip from './MyTrip';
-import EditPOI from './EditPOI'
+
 
 export {
   BrowseStart,
@@ -15,5 +15,4 @@ export {
   Plan,
   Generation,
   MyTrip,
-  EditPOI,
 }

@@ -9,6 +9,9 @@ export const TOGGLE_ACTIVE = 'TOGGLE_ACTIVE';
 export const MOVE_PLAN_POI  = 'MOVE_PLAN_POI';
 
 export const ADD_DRAFT_POI = 'ADD_DRAFT_POI';
+export const RATE_DRAFT_POI = 'RATE_DRAFT_POI';
+export const DEL_DRAFT_POI = 'DEL_DRAFT_POI';
+export const SHIFT_DRAFT_POI = 'SHIFT_DRAFT_POI';
 export const ADD_REPORT = 'ADD_REPORT';
 
 
@@ -45,6 +48,29 @@ export function addDraftPOI(poi) {
   return {
     type: ADD_DRAFT_POI,
     poi: poi,
+  }
+}
+
+export function rateDraftPOI(id, rating) {
+  return {
+    type: RATE_DRAFT_POI,
+    id: id,
+    rating: rating,
+  }
+}
+
+export function delDraftPOI(id) {
+  return {
+    type: DEL_DRAFT_POI,
+    id: id,
+  }
+}
+
+export function shiftDraftPOI(id, direction) {
+  return {
+    type: SHIFT_DRAFT_POI,
+    id: id,
+    direction: direction,
   }
 }
 

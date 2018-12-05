@@ -1,11 +1,14 @@
 {
   "expo": {
     "name": "Derive",
-    "description": "Explore. Plan. Travel.",
+    "description": "Explore. Plan. Share.",
     "slug": "hi-fi",
     "privacy": "public",
     "sdkVersion": "31.0.0",
-    "platforms": ["ios", "android"],
+    "platforms": [
+      "ios",
+      "android"
+    ],
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -24,8 +27,8 @@
       "supportsTablet": true,
       "bundleIdentifier": "edu.stanford.cs147.derive",
       "config": {
-         "googleMapsApiKey": 'AIzaSyA2wTXGcvjHgIgQRWc0at7uPn7_2Vc80Sw', 
+        "googleMapsApiKey": "AIzaSyA2wTXGcvjHgIgQRWc0at7uPn7_2Vc80Sw"
+      }
     }
-   }
- }
+  }
 }

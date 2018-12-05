@@ -13,6 +13,7 @@ import { connect } from 'react-redux';
 
 import { addReport, addDraftPOI } from '../Store/Actions';
 
+
  class Generation extends React.Component {
 
 
@@ -25,13 +26,14 @@ import { addReport, addDraftPOI } from '../Store/Actions';
 
         this.props.navigation.setParams({ submitPOI: this.submitPOI})
         this.props.navigation.setParams({ submitTrip: this.submitTrip})
+        this.props.navigation.setParams({ hideMap: this.hideMap})
   }
 
 
 state = {
 
       author: 'James Landay',
-      title: 'New report',
+      title: 'New Trip',
       titleDialogVisible: false,
       titleText: '',
       showMap: false,
@@ -51,6 +53,7 @@ state = {
 resetState = () => {
   this.setState({header: '', text: '', note: '', id: null, authorRating: 0, category: 'todo', derived: 0,
   lat: Metrics.StanfordLat, lng: Metrics.StanfordLng, image: {uri: 'http://hdimages.org/wp-content/uploads/2017/03/placeholder-image4-768x432.jpg'} });
+
 }
 
 copyState = (poi) => {
@@ -60,22 +63,27 @@ copyState = (poi) => {
   this.setState({lat: poi.coordinate.latitude, lng: poi.coordinate.longitude});
 }
 
-
 static navigationOptions = ({navigation}) => {
 return {
         headerTitle: <TouchableOpacity onPress={navigation.getParam('setTitle')}>
          <Text style={{fontWeight: '600'}}>{navigation.getParam('title','Untitled')}</Text>
         </TouchableOpacity>,
-        headerLeft:
-            <Icon
-                name="menu"
+        headerLeft: <Icon
+                name={navigation.getParam('leftIcon', 'ios-menu')}
+                type='ionicon'
                 size={30}
-                color="gray"
-                onPress={ () =>
-                         navigation.dispatch(DrawerActions.toggleDrawer())}
+                containerStyle={{marginLeft: 5}}
+                color={(navigation.getParam('leftIcon', 'ios-menu')==='ios-menu')?"gray":Colors.appleBlue}
+                onPress={ () => {
+                         const icon = navigation.getParam('leftIcon', 'ios-menu');
+                         const hider = navigation.getParam('hideMap', null);
+                         (icon === 'ios-menu')?
+                          navigation.dispatch(DrawerActions.toggleDrawer()):hider();
+                       }
+                }
             />,
-          headerRight: (
-            <View style={styles.iconContainer} >
+          headerRight:
+            <View style={styles.iconContainer}>
               <Icon
                 name="ios-add"
                 type='ionicon'
@@ -84,6 +92,7 @@ return {
                 color={Colors.appleBlue}
                 onPress={ navigation.getParam('submitPOI')}
                 />
+              {/*
               <Icon
                     name="ios-share"
                     type='ionicon'
@@ -91,8 +100,16 @@ return {
                     iconStyle={styles.shareIcon}
                     color={Colors.appleBlue}
                     onPress={ navigation.getParam('submitTrip')}
-                    />
-            </View>)
+                    /> */}
+                    <Icon
+                          name="ios-arrow-dropright"
+                          type='ionicon'
+                          size={30}
+                          iconStyle={styles.shareIcon}
+                          color={Colors.appleBlue}
+                          onPress={ navigation.getParam('submitTrip')}
+                          />
+                      </View>,
     }
 };
 
@@ -134,13 +151,13 @@ validGPS =  () => {
 
 submitPOI = (e, copyOver) => {
 
-  this.setState({showMap: false});
+  this.hideMap();
 
   if (!this.validGPS()) {
 
        !copyOver && Alert.alert(
            '',
-           'Please add an image with GPS or tag it on the map',
+           'Select location-enabled image or 📌',
            [
              {text: 'Cancel', onPress: () => {}, style: 'cancel'},
              {text: 'OK', onPress: () => {}},
@@ -156,7 +173,7 @@ submitPOI = (e, copyOver) => {
            '',
            'Please fill the title line',
            [
-             {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
+             //{text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
              {text: 'OK', onPress: () => console.log('OK Pressed')},
            ],
            { cancelable: false }
@@ -175,6 +192,46 @@ submitPOI = (e, copyOver) => {
 
 }
 
+// refactored to lead into another screen
+
+submitTrip = () => {
+
+   this.hideMap();
+
+   if (!this.props.draftpois.length) {
+     Alert.alert(
+           '',
+           'Please add at least one point of interest',
+           [
+             //{text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
+             {text: 'OK', onPress: () => console.log('OK Pressed')},
+           ],
+           { cancelable: false }
+         );
+     return;
+   }
+
+   if (this.state.title === 'New Trip') {
+     Alert.alert(
+           '',
+           'Please name this trip',
+           [
+             {text: 'OK', onPress: () => console.log('OK Pressed')},
+           ],
+           { cancelable: false }
+         );
+     return;
+   }
+
+   this.props.navigation.navigate('MyTrip', {title: this.state.title, author: this.state.author, reset: this.clearSelectors});
+}
+
+clearSelectors = () => {
+  this.resetState();
+  this.props.navigation.setParams({ title: 'New Trip'})
+}
+
+/*
 submitTrip = () => {
 
    this.setState({showMap: false});
@@ -184,7 +241,7 @@ submitTrip = () => {
            '',
            'Please add at least one point of interest',
            [
-             {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
+             //{text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
              {text: 'OK', onPress: () => console.log('OK Pressed')},
            ],
            { cancelable: false }
@@ -202,6 +259,8 @@ submitTrip = () => {
            ],
            { cancelable: false }
          );
+
+     this.props.navigation.dispatch(DrawerActions.toggleDrawer());
      return;
    }
 
@@ -224,9 +283,22 @@ submitTrip = () => {
    this.resetState();
    this.props.navigation.setParams({ title: 'New report'})
 }
+*/
 
 setTitle = () => {
   this.setState({ titleDialogVisible: true });
+}
+
+showMap = () => {
+  this.props.navigation.setParams({leftIcon: 'ios-arrow-back'});
+  this.setState({showMap: true});
+
+}
+
+hideMap = () => {
+  this.props.navigation.setParams({leftIcon: 'ios-menu'});
+  this.setState({showMap: false});
+
 }
 
 saveTitle = () => {
@@ -244,7 +316,6 @@ saveTitle = () => {
             '',
             'Please enter report name longer than 5 characters',
             [
-              {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
               {text: 'OK', onPress: () => console.log('OK Pressed')},
             ],
             { cancelable: false }
@@ -252,7 +323,7 @@ saveTitle = () => {
       return;
     }
 
-    // good
+    // good title here
     this.setState({title: this.state.titleText, titleDialogVisible: false});
     this.props.navigation.setParams({ title: this.state.titleText})
 }
@@ -300,7 +371,7 @@ render() {
             <DialogButton
               text="OK"
               key = "0"
-              onPress={this.saveTitle}
+              onPress={() => {this.saveTitle(); }}
             />,
               <DialogButton
                 text="CANCEL"
@@ -317,7 +388,6 @@ render() {
               autoCorrect={false}
               defaultValue = {this.state.title}
               onChangeText={(text) => this.setState({titleText: text})}
-              onBlur={() => this.saveTitle() }
               clearButtonMode = 'unless-editing'
               maxLength = {50}
             />
@@ -332,56 +402,71 @@ render() {
           </TouchableOpacity>
 
          <View style={styles.propBox}>
-            <StarRating
-                disabled={false}
-                maxStars={5}
-                rating={this.state.authorRating}
-                selectedStar={(rating) => {
-                    this.setState({authorRating: rating});
+              {/* moved rating to bext screen
+              <StarRating
+                  disabled={false}
+                  maxStars={5}
+                  rating={this.state.authorRating}
+                  selectedStar={(rating) => {
+                      this.setState({authorRating: rating});
+                    }
                   }
-                }
 
-            emptyStar={'ios-star-outline'}
-            fullStar={'ios-star'}
-            halfStar={'ios-star-half'}
-            iconSet={'Ionicons'}
-            fullStarColor={'red'}
-            starSize={20}
-            />
+              emptyStar={'ios-star-outline'}
+              fullStar={'ios-star'}
+              halfStar={'ios-star-half'}
+              iconSet={'Ionicons'}
+              fullStarColor={'red'}
+              starSize={20}
+              />
+              */}
 
-            <Icon
-              name='ios-bed'
-              type='ionicon'
-              onPress={() => this.setState({category: 'sleep'})}
-              size = {30}
-              underlayColor = 'transparent'
-              color={this.state.category==='sleep'?Colors.sleep3:'lightgray'}
-            />
-            <Icon
-              name='ios-restaurant'
-              type='ionicon'
-              onPress={() => this.setState({category: 'food'})}
-              size = {30}
-              underlayColor = 'transparent'
-              color={this.state.category==='food'?Colors.food3:'lightgray'}
-            />
-            <Icon
-              name='ios-image'
-              type='ionicon'
-              onPress={() => this.setState({category: 'todo'})}
-              size = {30}
-              underlayColor = 'transparent'
-              color={this.state.category==='todo'?Colors.todo3:'lightgray'}
-            />
+              <View style={styles.actiontab}>
+                <Icon
+                  name='ios-bed'
+                  type='ionicon'color={this.state.category==='sleep'?Colors.sleep3:'lightgray'}
+                  onPress={() => this.setState({category: 'sleep'})}
+                  size = {40}
+                  underlayColor = 'transparent'
+                  color={this.state.category==='sleep'?Colors.sleep3:'lightgray'}
+                />
+              <Text>sleep</Text>
+             </View>
 
-            <Icon
-              name='place'
-              size={30}
+             <View style={styles.actiontab}>
+               <Icon
+                 name='ios-restaurant'
+                 type='ionicon'
+                 onPress={() => this.setState({category: 'food'})}
+                 size = {40}
+                 underlayColor = 'transparent'
+                 color={this.state.category==='food'?Colors.food3:'lightgray'}
+               />
+             <Text>eat</Text>
+            </View>
+
+            <View style={styles.actiontab}>
+              <Icon
+                name='ios-image'
+                type='ionicon'
+                onPress={() => this.setState({category: 'todo'})}
+                size = {40}
+                underlayColor = 'transparent'
+                color={this.state.category==='todo'?Colors.todo3:'lightgray'}
+              />
+              <Text>do</Text>
+           </View>
+
+
+            <Icon style={styles.gpsfixed}
+              name='pin'
+              type='octicon'
+              size={20}
               iconStyle={styles.icon}
               color={this.validGPS()?Colors.appleBlue:'red'}
-              onPress={ () =>
-                        this.setState({showMap: true})}
+              onPress={ this.showMap }
               />
+
 
         </View>
 
@@ -413,7 +498,7 @@ render() {
         <MapView
           style={styles.map}
           ref={(ref) => { this.mapRef = ref }}
-          onLayout={() => this.mapRef.fitToElements(true)}
+          onLayout={() => this.mapRef.fitToCoordinates([{latitude: this.state.lat, longitude: this.state.lng}])}
           mapType={"mutedStandard"}
 
          >
@@ -427,22 +512,27 @@ render() {
               onDragEnd = { (e) => this.setState({lat: e.nativeEvent.coordinate.latitude, lng: e.nativeEvent.coordinate.longitude}) }
           />
 
+        {this.props.draftpois.map(marker => (
+            <MapView.Marker
+                mapType={"mutedStandard"}
+                key={marker.id}
+                coordinate={marker.coordinate}
+                title={marker.header}
+                description={"❤".repeat(Math.round(parseFloat(marker.authorRating)))}
+                pinColor={marker.pinColor}
+            />
+          ))}
+          <MapView.Polyline
+               coordinates={this.props.draftpois.map(item => ({latitude: item.coordinate.latitude, longitude: item.coordinate.longitude}))}
+               strokeColor="red" // fallback for when `strokeColors` is not supported by the map-provider
+               strokeColors={['red',...this.props.draftpois.map(item => item.pinColor)]}
+               strokeWidth={2}
+             />
+
         </MapView>
 
   }
 
-  {this.state.showMap && <View style={styles.navbar}>
-      <Icon
-        containerStyle = {styles.backIcon}
-        name='ios-arrow-back'
-        type='ionicon'
-        onPress={() => this.setState({showMap: false})}
-        size = {40}
-        underlayColor = 'transparent'
-        color={Colors.appleBlue}
-      />
-  </View>
-  }
 
   {!this.state.showMap &&
 
@@ -450,12 +540,11 @@ render() {
 
        {this.props.draftpois.map(poi => (
           <TouchableOpacity key={poi.id} onPress={() =>  {this.submitPOI(true, true); this.copyState(poi)}}>
-
                <Image
                  style={{width: 66, height: 58, margin: 10}}
                  source={poi.images[0]}
                />
-           </TouchableOpacity>
+          </TouchableOpacity>
        ))}
 
      </ScrollView>
@@ -463,10 +552,10 @@ render() {
 
   </SafeAreaView>
 
-);  // end return()
+); // end return()
 
 } // end render{}
-}  // end class
+} // end class
 
 const shortid = require('shortid');
 
@@ -513,6 +602,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     padding: 5,
+    marginLeft: 10,
+    marginRight: 10,
   },
   dialog: {
     width: Metrics.screenWidth*0.8,
@@ -551,6 +642,12 @@ const styles = StyleSheet.create({
     width: Metrics.screenWidth,
     zIndex: 100,
     backgroundColor: 'rgba(0, 0, 0, 0.05)',
+  },
+  actiontab: {
+    alignItems: 'center'
+  },
+  gpsfixed: {
+    alignSelf: 'flex-start',
   },
   exposeRibbon: {
     position: 'absolute',
