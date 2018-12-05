@@ -1,8 +1,9 @@
 import React from 'react';
 import { StyleSheet, Text, View, Image, Button, ActivityIndicator, SectionList, Dimensions, ScrollView, SafeAreaView, AsyncStorage } from 'react-native';
-import { Icon } from 'react-native-elements';
+//import { Icon } from 'react-native-elements';
 import { createStackNavigator, createDrawerNavigator, createBottomTabNavigator, DrawerActions, DrawerItems, NavigationActions} from 'react-navigation';
-
+import { createMaterialBottomTabNavigator } from 'react-navigation-material-bottom-tabs';
+import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import {createStore} from 'redux';
 import {Provider } from 'react-redux';
 import devtools from 'remote-redux-devtools';
@@ -12,6 +13,7 @@ import {restoreState, toggleOnboard} from './App/Store/Actions'
 
 import { Images, Colors, Metrics } from './App/Themes';
 import * as pages from './App/Pages';
+import { LinearGradient } from 'expo';
 
 
 // deferred features: multiple pics per POI, multiple planned trips,
@@ -31,26 +33,26 @@ const BrowseNavigator = createStackNavigator(
     navigationOptions: ({navigation}) => {
 
         return {
-            headerTitle: 'Explore',
+            headerTitle: 'Search',
             headerBackTitle: null,
         }
     }
 });
 
-const PlanNavigator = createStackNavigator(
+const GenerationNavigator = createStackNavigator(
   {
     Trip: pages.Plan,
     POI: pages.POI,
   },
   {
     initialRouteName: 'Trip',
-    initialRouteParams: {
+    /*initialRouteParams: {
       rightIcon: 'map-outline',
-    }
+    }*/
 });
 
 
-const GenerationNavigator = createStackNavigator({
+const PlanNavigator = createStackNavigator({
 
   Generation: pages.Generation,
   Trip: pages.MyTrip,
@@ -65,7 +67,7 @@ const GenerationNavigator = createStackNavigator({
     }
    });
 
-const CustomDrawerContentComponent = (props) => (
+/*const CustomDrawerContentComponent = (props) => (
   <ScrollView>
     <SafeAreaView style={styles.container} forceInset={{ top: 'always', horizontal: 'never' }}>
       <View style={styles.logo}>
@@ -83,6 +85,37 @@ const DrawerNav = createDrawerNavigator({
   },
   { initialRouteName: 'Explore',
     contentComponent: CustomDrawerContentComponent,
+
+});
+*/
+const TabNav = createBottomTabNavigator({
+  Explore: {screen: BrowseNavigator,
+  navigationOptions: () => ({
+    tabBarLabel: "Search",
+    tabBarIcon: ({ tintColor }) => (
+            <Icon name="magnify" color="#000000" size={24} />
+            )
+    })
+
+  },
+  Plan: {screen: PlanNavigator,
+    navigationOptions: () => ({
+    tabBarLabel: "Post",
+    tabBarIcon: ({ tintColor }) => (
+            <Icon name="plus" color="#000000" size={24} />
+            )
+    })
+  },
+  Report:  {screen: GenerationNavigator,
+    navigationOptions: () => ({
+    tabBarLabel: "My Trips",
+    tabBarIcon: ({ tintColor }) => (
+            <Icon name="format-list-bulleted" color="#000000" size={24} />
+            )
+    })},
+  },
+  { initialRouteName: 'Explore',
+    //contentComponent: CustomDrawerContentComponent,
 
 });
 
@@ -110,11 +143,26 @@ export default class App extends React.Component {
 render() {
       return (
         <Provider store={store}>
-            <DrawerNav/>
+            <TabNav/>
         </Provider>
       );
     }
   }
+const colors = {
+  yellow: "#fecf33",
+  lightOrange: "#fdbd39",
+  peach: "#ee6723"
+};
+const textStyles = StyleSheet.create({
+  header: {
+    fontFamily: "SFUIDisplay",
+    fontSize: 24,
+    fontWeight: "normal",
+    fontStyle: "normal",
+    letterSpacing: 0,
+    color: "#554d56"
+  }
+});
 
 const styles = StyleSheet.create({
   container: {
