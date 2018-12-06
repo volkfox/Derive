@@ -1,6 +1,6 @@
 
 import React from 'react';
-import {  CameraRoll, StyleSheet, Text, View, Button, TextInput, Image, ScrollView, TouchableOpacity, Alert, KeyboardAvoidingView, SafeAreaView} from 'react-native';
+import {  CameraRoll, StyleSheet, Text, View, Button, TextInput, Image, ScrollView, TouchableOpacity, TouchableWithoutFeedback, Alert, KeyboardAvoidingView, SafeAreaView} from 'react-native';
 import { Images, Colors, Metrics } from '../Themes';
 import { DrawerActions } from 'react-navigation-drawer';
 import { Icon, Card } from 'react-native-elements';
@@ -11,6 +11,7 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import { MapView, Marker, Polyline} from 'expo';
 import { connect } from 'react-redux';
 import Carousel from 'react-native-snap-carousel';
+import FlipComponent from 'react-native-flip-component';
 
 import { addReport, addDraftPOI } from '../Store/Actions';
 
@@ -43,6 +44,7 @@ state = {
       showMap: false,
       roll: [],
       showCarousel: true,
+      carouselFlipped: false,
 
       header: '',
       id: null,
@@ -59,7 +61,7 @@ state = {
 
 resetState = () => {
   this.setState({header: '', text: '', note: '', id: null, authorRating: 0, category: 'todo', derived: 0,
-  lat: Metrics.StanfordLat, lng: Metrics.StanfordLng, image: null, showCarousel: true });
+  lat: Metrics.StanfordLat, lng: Metrics.StanfordLng, image: null, showCarousel: true, carouselFlipped: false, });
 
 }
 
@@ -182,6 +184,7 @@ submitPOI = (e, copyOver) => {
            { cancelable: false }
          );
 
+     this.setState({carouselFlipped: true});
      return;
    }
    const pinColorName = this.state.category+this.state.authorRating;
@@ -279,18 +282,14 @@ saveTitle = () => {
 parseNote = (note) => {
     // empty input
     if (!note.length) return;
-    const body = note.split('\n');
 
-    // single line - assume a header
-    if (body.length < 2) {
-      this.setState({header: note, text: ''});
-      return;
-    }
-    // else multiline case
-    const header = body[0];
-    body.shift();
-    const text = body.join('');
-    this.setState({header: header, text: text});
+    const body = note.split('\n');
+    const header = body.shift();
+
+    this.setState({header: header});
+
+    const text = body.join('\n');
+    this.setState({text: text});
     this.note='';
 }
 
@@ -325,12 +324,42 @@ componentDidMount() {
 _renderRollItem = ({item, index}) => {
 
         return (
-            <View style={styles.slide}>
-                <Image source={item.image}
-                  style={styles.cardImage}
-                  backgroundColor='black'
-                />
-            </View>
+
+          <FlipComponent
+               isFlipped={this.state.carouselFlipped}
+               frontView={
+                 <TouchableWithoutFeedback style={styles.slide} onPress={() => this.setState({ carouselFlipped: true})}>
+                     <Image source={item.image}
+                       style={styles.cardImage}
+                       backgroundColor='black'
+                     />
+                 </TouchableWithoutFeedback>
+               }
+               backView={
+                 <TouchableOpacity onPress={() => this.setState({ carouselFlipped: false})}>
+
+                   <KeyboardAvoidingView style={{ height: Metrics.screenWidth*0.9, justifyContent: "flex-start" }}>
+                       <TextInput
+                         placeholder={'Title \n \n Say more about this place'}
+                         editable = {true}
+                         defaultValue = {this.state.note}
+                         value = {this.state.note}
+                         onChangeText={(text) => this.setState({note: text})}
+                         multiline = {true}
+                         numberOfLines = {10}
+                         style = {styles.textInput}
+                         onFocus={() => this.myScrollView.scrollTo({ x: 0, y: Metrics.screenWidth*.1, animated: true })}
+                         onBlur = { () => {
+                           this.parseNote(this.state.note);
+                           this.myScrollView.scrollTo({ x: 0, y: 0, animated: true });
+                           }
+                         }
+                       />
+
+                   </KeyboardAvoidingView>
+                 </TouchableOpacity>
+               }
+             />
         );
 }
 
@@ -396,17 +425,22 @@ render() {
             <Image source={this.state.image} style={styles.cardImage} />
           </TouchableOpacity> }
 
-          {this.state.showCarousel && <View style={{opacity: this.state.image?1.0:0.2,}}>
-            <Carousel
-                      ref={(c) => { this._carousel = c; }}
-                      data={this.state.roll}
-                      renderItem={this._renderRollItem}
-                      sliderWidth={Metrics.screenWidth*0.9}
-                      itemWidth={Metrics.screenWidth*0.9}
-                      onSnapToItem={this._activeEntry}
-                      onEndReached={this.getNextImages}
-             />
-         </View>}
+          {this.state.showCarousel &&
+
+            <View style={{opacity: (this.state.image || this.state.carouselFlipped)?1.0:0.2,}}>
+
+                    <Carousel
+                              ref={(c) => { this._carousel = c; }}
+                              data={this.state.roll}
+                              renderItem={this._renderRollItem}
+                              sliderWidth={Metrics.screenWidth*0.9}
+                              itemWidth={Metrics.screenWidth*0.9}
+                              onSnapToItem={this._activeEntry}
+                              onEndReached={this.getNextImages}
+                              onPress={() => this.setState({ carouselFlipped: true})}
+                     />
+
+            </View>}
 
          <View style={styles.propBox}>
 
@@ -456,25 +490,7 @@ render() {
               />
         </View>
 
-              <KeyboardAvoidingView style={{ height: 500, justifyContent: "flex-start" }}>
-                  <TextInput
-                    placeholder={'Title \n \n Say more about this place'}
-                    editable = {true}
-                    defaultValue = {this.state.note}
-                    value = {this.state.note}
-                    onChangeText={(text) => this.setState({note: text})}
-                    multiline = {true}
-                    numberOfLines = {10}
-                    style = {styles.textInput}
-                    onFocus={() => this.myScrollView.scrollTo({ x: 0, y: Metrics.screenWidth*.9, animated: true })}
-                    onBlur = { () => {
-                      this.parseNote(this.state.note);
-                      this.myScrollView.scrollTo({ x: 0, y: 0, animated: true });
-                      }
-                    }
-                  />
-                <View style={{ height: 300 }} />
-              </KeyboardAvoidingView>
+
             </Card>
     </ScrollView>
     }
@@ -603,10 +619,9 @@ const styles = StyleSheet.create({
   textInput: {
       flex:1,
       backgroundColor: 'beige',
-      alignSelf: 'stretch',
-      marginTop: 10,
+      width: Metrics.screenWidth*0.9,
+      marginTop: 40,
       marginBottom: 0,
-      marginRight: 30,
       paddingLeft: 5,
       paddingRight: 5,
   },
