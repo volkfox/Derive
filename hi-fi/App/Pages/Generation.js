@@ -10,8 +10,10 @@ import Dialog, { DialogContent, DialogButton, DialogTitle } from 'react-native-p
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { MapView, Marker, Polyline} from 'expo';
 import { connect } from 'react-redux';
-
+import LottieView from 'lottie-react-native';
 import { addReport, addDraftPOI } from '../Store/Actions';
+import * as pages from '.';
+
 
  class Generation extends React.Component {
 
@@ -31,7 +33,7 @@ import { addReport, addDraftPOI } from '../Store/Actions';
 state = {
 
       author: 'James Landay',
-      title: '   Post',
+      title: '   Stanford Trip',
       titleDialogVisible: false,
       titleText: '',
       showMap: false,
@@ -76,6 +78,11 @@ return {
             />,*/
           headerRight: (
             <View style={styles.iconContainer} >
+            <Button
+  //onPress={() => navigation.setParams({ })} take in text, show loading bar, magically make trip
+  title="Auto Generate"
+  color="blue"
+/>
               <Icon
                 name="ios-add"
                 type='ionicon'
@@ -136,34 +143,6 @@ submitPOI = (e, copyOver) => {
 
   this.setState({showMap: false});
 
-  if (!this.validGPS()) {
-
-       !copyOver && Alert.alert(
-           '',
-           'Please add an image with GPS or tag it on the map',
-           [
-             {text: 'Cancel', onPress: () => {}, style: 'cancel'},
-             {text: 'OK', onPress: () => {}},
-           ],
-           { cancelable: false }
-         );
-     return;
-   }
-
-   if (!this.state.header) {
-
-     !copyOver && Alert.alert(
-           '',
-           'Please fill the title line',
-           [
-             {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
-             {text: 'OK', onPress: () => console.log('OK Pressed')},
-           ],
-           { cancelable: false }
-         );
-
-     return;
-   }
    const pinColorName = this.state.category+this.state.authorRating;
    const poi = {id: this.state.id?this.state.id:shortid.generate(), category: this.state.category, header: this.state.header, text: this.state.text, images: [this.state.image], coordinate: {latitude: this.state.lat, longitude: this.state.lng}, authorRating: this.state.authorRating,
      pinColor: Colors[pinColorName], derived: 0, author: this.state.author, };
@@ -179,31 +158,6 @@ submitTrip = () => {
 
    this.setState({showMap: false});
 
-   if (!this.props.draftpois.length) {
-     Alert.alert(
-           '',
-           'Please add at least one point of interest',
-           [
-             {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
-             {text: 'OK', onPress: () => console.log('OK Pressed')},
-           ],
-           { cancelable: false }
-         );
-     return;
-   }
-
-   if (this.state.title === 'Post') {
-     Alert.alert(
-           '',
-           'Please name this report',
-           [
-             {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
-             {text: 'OK', onPress: () => console.log('OK Pressed')},
-           ],
-           { cancelable: false }
-         );
-     return;
-   }
 
    const poiSet = this.props.draftpois.map(poi => poi.id);
 
@@ -222,7 +176,7 @@ submitTrip = () => {
        );
    // clean up the current
    this.resetState();
-   this.props.navigation.setParams({ title: 'Post'})
+   this.props.navigation.setParams({ title: '  Stanford Trip'})
 }
 
 setTitle = () => {
@@ -290,7 +244,6 @@ render() {
   return (
 
  <SafeAreaView style={styles.container}>
-
       <Dialog
           visible={this.state.titleDialogVisible}
           onTouchOutside={() => {
@@ -332,23 +285,7 @@ render() {
           </TouchableOpacity>
 
          <View style={styles.propBox}>
-            <StarRating
-                disabled={false}
-                maxStars={5}
-                rating={this.state.authorRating}
-                selectedStar={(rating) => {
-                    this.setState({authorRating: rating});
-                  }
-                }
-
-            emptyStar={'ios-star-outline'}
-            fullStar={'ios-star'}
-            halfStar={'ios-star-half'}
-            iconSet={'Ionicons'}
-            fullStarColor={'red'}
-            starSize={20}
-            />
-
+            
             <Icon
               name='ios-bed'
               type='ionicon'
@@ -387,7 +324,7 @@ render() {
 
               <KeyboardAvoidingView style={{ height: 500, justifyContent: "flex-start" }}>
                   <TextInput
-                    placeholder={'Title \n \n Say more about this place'}
+                    placeholder={'\n Say more about this place'}
                     editable = {true}
                     defaultValue = {this.state.note}
                     value = {this.state.note}
