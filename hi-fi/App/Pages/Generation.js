@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { StyleSheet, Text, View, Button, TextInput, Image, ScrollView, TouchableOpacity, Alert, KeyboardAvoidingView, SafeAreaView} from 'react-native';
+import {  CameraRoll, StyleSheet, Text, View, Button, TextInput, Image, ScrollView, TouchableOpacity, Alert, KeyboardAvoidingView, SafeAreaView} from 'react-native';
 import { Images, Colors, Metrics } from '../Themes';
 import { DrawerActions } from 'react-navigation-drawer';
 import { Icon, Card } from 'react-native-elements';
@@ -10,6 +10,7 @@ import Dialog, { DialogContent, DialogButton, DialogTitle } from 'react-native-p
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { MapView, Marker, Polyline} from 'expo';
 import { connect } from 'react-redux';
+import Carousel from 'react-native-snap-carousel';
 
 import { addReport, addDraftPOI } from '../Store/Actions';
 
@@ -24,9 +25,12 @@ import { addReport, addDraftPOI } from '../Store/Actions';
         this.props.navigation.setParams({ title: this.state.title });
         this.props.navigation.setParams({ setTitle: this.setTitle });
 
-        this.props.navigation.setParams({ submitPOI: this.submitPOI})
-        this.props.navigation.setParams({ submitTrip: this.submitTrip})
-        this.props.navigation.setParams({ hideMap: this.hideMap})
+        this.props.navigation.setParams({ submitPOI: this.submitPOI});
+        this.props.navigation.setParams({ submitTrip: this.submitTrip});
+        this.props.navigation.setParams({ hideMap: this.hideMap});
+
+        this.loading = false;
+        this.cursor = null;
   }
 
 
@@ -37,6 +41,8 @@ state = {
       titleDialogVisible: false,
       titleText: '',
       showMap: false,
+      roll: [],
+      showCarousel: true,
 
       header: '',
       id: null,
@@ -45,14 +51,15 @@ state = {
       derived: 0,
       lat: Metrics.StanfordLat,
       lng: Metrics.StanfordLng,
-      image: {uri: 'http://hdimages.org/wp-content/uploads/2017/03/placeholder-image4-768x432.jpg'},
+      image: null,
       note: '',
       text: '',
 };
 
+
 resetState = () => {
   this.setState({header: '', text: '', note: '', id: null, authorRating: 0, category: 'todo', derived: 0,
-  lat: Metrics.StanfordLat, lng: Metrics.StanfordLng, image: {uri: 'http://hdimages.org/wp-content/uploads/2017/03/placeholder-image4-768x432.jpg'} });
+  lat: Metrics.StanfordLat, lng: Metrics.StanfordLng, image: null, showCarousel: true });
 
 }
 
@@ -61,6 +68,7 @@ copyState = (poi) => {
   this.setState({note: poi.header+'\n\n'+poi.text});
   this.setState({image: poi.images[0]});
   this.setState({lat: poi.coordinate.latitude, lng: poi.coordinate.longitude});
+  this.setState({showCarousel: false});
 }
 
 static navigationOptions = ({navigation}) => {
@@ -84,23 +92,15 @@ return {
             />,
           headerRight:
             <View style={styles.iconContainer}>
-              <Icon
-                name="ios-add"
-                type='ionicon'
-                size={30}
-                iconStyle={styles.shareIcon}
-                color={Colors.appleBlue}
-                onPress={ navigation.getParam('submitPOI')}
-                />
-              {/*
-              <Icon
-                    name="ios-share"
+                  <Icon
+                    name="ios-add"
                     type='ionicon'
                     size={30}
                     iconStyle={styles.shareIcon}
                     color={Colors.appleBlue}
-                    onPress={ navigation.getParam('submitTrip')}
-                    /> */}
+                    onPress={ navigation.getParam('submitPOI')}
+                    />
+
                     <Icon
                           name="ios-arrow-dropright"
                           type='ionicon'
@@ -113,6 +113,21 @@ return {
     }
 };
 
+_processImage = (result) => {
+  if (!result.cancelled) {
+
+    if (result.exif) {
+          let {GPSLatitude, GPSLongitude} = result.exif;
+          if (GPSLatitude && GPSLongitude) {
+              if (result.exif.GPSLatitudeRef === 'S') GPSLatitude = -GPSLatitude;
+              if (result.exif.GPSLongitudeRef === 'W') GPSLongitude = -GPSLongitude;
+              this.setState({lat: GPSLatitude, lng: GPSLongitude});
+          }
+    }
+      this.setState({ image: {uri: result.uri}});
+  }
+}
+
 _pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       allowsEditing: true,
@@ -120,18 +135,7 @@ _pickImage = async () => {
       aspect: [16, 9],
     });
 
-    if (!result.cancelled) {
-
-      if (result.exif) {
-            let {GPSLatitude, GPSLongitude} = result.exif;
-            if (GPSLatitude && GPSLongitude) {
-                if (result.exif.GPSLatitudeRef === 'S') GPSLatitude = -GPSLatitude;
-                if (result.exif.GPSLongitudeRef === 'W') GPSLongitude = -GPSLongitude;
-                this.setState({lat: GPSLatitude, lng: GPSLongitude});
-            }
-      }
-        this.setState({ image: {uri: result.uri}});
-    }
+    this._processImage(result);
 }
 
 
@@ -159,7 +163,6 @@ submitPOI = (e, copyOver) => {
            '',
            'Select location-enabled image or 📌',
            [
-             {text: 'Cancel', onPress: () => {}, style: 'cancel'},
              {text: 'OK', onPress: () => {}},
            ],
            { cancelable: false }
@@ -189,7 +192,6 @@ submitPOI = (e, copyOver) => {
    this.resetState();
    // 2. save to redux
    this.props.upsert(poi);
-
 }
 
 // refactored to lead into another screen
@@ -230,60 +232,6 @@ clearSelectors = () => {
   this.resetState();
   this.props.navigation.setParams({ title: 'New Trip'})
 }
-
-/*
-submitTrip = () => {
-
-   this.setState({showMap: false});
-
-   if (!this.props.draftpois.length) {
-     Alert.alert(
-           '',
-           'Please add at least one point of interest',
-           [
-             //{text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
-             {text: 'OK', onPress: () => console.log('OK Pressed')},
-           ],
-           { cancelable: false }
-         );
-     return;
-   }
-
-   if (this.state.title === 'New report') {
-     Alert.alert(
-           '',
-           'Please name this report',
-           [
-             {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
-             {text: 'OK', onPress: () => console.log('OK Pressed')},
-           ],
-           { cancelable: false }
-         );
-
-     this.props.navigation.dispatch(DrawerActions.toggleDrawer());
-     return;
-   }
-
-   const poiSet = this.props.draftpois.map(poi => poi.id);
-
-   const trip = {id: shortid.generate(), author: this.state.author, date: {}, title: this.state.title, pois: poiSet, communityRating: 0, derived: 0,}
-   const poiList = this.props.draftpois.map(element => {element.tripID=trip.id; return element});
-   this.props.publish(poiList, trip);
-
-   Alert.alert(
-         '',
-         'Report published',
-         [
-           {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
-           {text: 'OK', onPress: () => console.log('OK Pressed')},
-         ],
-         { cancelable: false }
-       );
-   // clean up the current
-   this.resetState();
-   this.props.navigation.setParams({ title: 'New report'})
-}
-*/
 
 setTitle = () => {
   this.setState({ titleDialogVisible: true });
@@ -346,10 +294,57 @@ parseNote = (note) => {
     this.note='';
 }
 
+getNextImages = () => {
+      if (!this.cursor) return;
+        this.getRollImages(this.cursor);
+}
+
+getRollImages = async (after) => {
+    if (this.loading) return;
+    this.loading = true;
+    const results = await CameraRoll.getPhotos({ first: 20, after,});
+    const { edges, page_info: { has_next_page, end_cursor } } = results;
+    const loadedImages = edges.map(item => item.node);
+
+    this.setState( {
+        roll: this.state.roll.concat(loadedImages), },
+        () => {
+            this.loading = false;
+            this.cursor = has_next_page ? end_cursor : null;
+          }, );
+}
+
 componentDidMount() {
   this._checkCameraPermissions();
   this.resetState();
-  //this._pickImage();
+  this.getRollImages();
+}
+
+
+_renderRollItem = ({item, index}) => {
+
+        return (
+            <View style={styles.slide}>
+                <Image source={item.image}
+                  style={styles.cardImage}
+                  backgroundColor='black'
+                />
+            </View>
+        );
+}
+
+_activeEntry = (index) => {
+
+     const active = this.state.roll[index];
+     if (!active) return;
+
+     if (active.location) {
+           let {latitude, longitude} = active.location;
+           if (latitude && longitude) {
+               this.setState({lat: latitude, lng: longitude});
+           }
+     }
+    this.setState({ image: {uri: active.image.uri}});
 }
 
 
@@ -379,9 +374,8 @@ render() {
                 onPress={() => {this.setState({ titleDialogVisible: false });}}
               />,
           ]}
-          dialogStyle={styles.dialog}
+          dialogStyle={styles.dialog} >
 
-      >
           <DialogContent>
             <TextInput
               style={{height: 40, borderColor: 'gray', borderWidth: 1, marginTop: 20, padding: 5}}
@@ -397,29 +391,24 @@ render() {
 
     {!this.state.showMap && <ScrollView style={styles.scroller} ref={component => { this.myScrollView = component; }}>
       <Card style={styles.card} wrapperStyle={styles.cardWrapper} containerStyle={styles.cardContainer}>
-          <TouchableOpacity onPress={this._pickImage}>
+          {!this.state.showCarousel && <TouchableOpacity onPress={this._pickImage}>
             <Image source={this.state.image} style={styles.cardImage} />
-          </TouchableOpacity>
+          </TouchableOpacity> }
+
+          {this.state.showCarousel && <View style={{opacity: this.state.image?1.0:0.2,}}>
+
+            <Carousel
+                      ref={(c) => { this._carousel = c; }}
+                      data={this.state.roll}
+                      renderItem={this._renderRollItem}
+                      sliderWidth={Metrics.screenWidth*0.9}
+                      itemWidth={Metrics.screenWidth*0.9}
+                      onSnapToItem={this._activeEntry}
+                      onEndReached={this.getNextImages}
+             />
+         </View>}
 
          <View style={styles.propBox}>
-              {/* moved rating to bext screen
-              <StarRating
-                  disabled={false}
-                  maxStars={5}
-                  rating={this.state.authorRating}
-                  selectedStar={(rating) => {
-                      this.setState({authorRating: rating});
-                    }
-                  }
-
-              emptyStar={'ios-star-outline'}
-              fullStar={'ios-star'}
-              halfStar={'ios-star-half'}
-              iconSet={'Ionicons'}
-              fullStarColor={'red'}
-              starSize={20}
-              />
-              */}
 
               <View style={styles.actiontab}>
                 <Icon
@@ -457,7 +446,6 @@ render() {
               <Text>do</Text>
            </View>
 
-
             <Icon style={styles.gpsfixed}
               name='pin'
               type='octicon'
@@ -466,8 +454,6 @@ render() {
               color={this.validGPS()?Colors.appleBlue:'red'}
               onPress={ this.showMap }
               />
-
-
         </View>
 
               <KeyboardAvoidingView style={{ height: 500, justifyContent: "flex-start" }}>
@@ -552,9 +538,9 @@ render() {
 
   </SafeAreaView>
 
-); // end return()
+  ); // end return()
 
-} // end render{}
+  } // end render{}
 } // end class
 
 const shortid = require('shortid');
@@ -583,6 +569,10 @@ const styles = StyleSheet.create({
   card: {
     width: Metrics.screenWidth*0.9,
   },
+  slide: {
+    width: Metrics.screenWidth*0.9,
+    height: Metrics.screenWidth*0.9,
+  },
   cardImage: {
     marginTop: 20,
     width: Metrics.screenWidth*0.9,
@@ -591,7 +581,6 @@ const styles = StyleSheet.create({
   cardWrapper: {
     padding: 0,
   },
-
   cardContainer: {
     padding: 0,
     marginLeft: 0,
@@ -646,8 +635,8 @@ const styles = StyleSheet.create({
   actiontab: {
     alignItems: 'center'
   },
+
   gpsfixed: {
-    alignSelf: 'flex-start',
   },
   exposeRibbon: {
     position: 'absolute',

@@ -32,6 +32,7 @@ state = {
       todoFilter: true,
       activeMarker: {},
       changeMarker: {},
+      previewValue: -30,
    }
 
 static navigationOptions = ({navigation}) => {
@@ -91,7 +92,7 @@ submitTrip = () => {
 
       Alert.alert(
             '',
-            'Trip published',
+            'Trip publishemd',
             [
               {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
               {text: 'OK', onPress: () => console.log('OK Pressed')},
@@ -129,14 +130,14 @@ render() {
                    friction = {7}
                    onRowOpen={(rowKey, rowMap, toValue) => {this.rowRef = rowMap[rowKey];}}
                    onRowDidClose={(rowKey, rowMap) => {this.rowOpen = false;}}
-                   onRowDidOpen={(rowKey, rowMap) => {this.rowOpen = true;}}
+                   onRowDidOpen={(rowKey, rowMap) => {this.rowOpen = true; this.setState({previewValue: -1}); }}
                    useFlatList
                    data={trip}
                    keyExtractor = { (item) => JSON.stringify(item) }
 
                    rightOpenValue={-75}
                    previewRowKey={JSON.stringify(trip[0])}
-                   previewOpenValue={-30}
+                   previewOpenValue={this.state.previewValue}
 
                    renderItem={ (element, rowMap) => {
                      // this is poi entry in the trip
