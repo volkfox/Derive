@@ -52,7 +52,15 @@ Core tasks (**Explore, Plan, Report**) are accessed via edge swipe  (also duplic
   * No indications of the time of the trip
   
 ### Generate
-   TBD
+   1. *Main* screen (list and map representations)
+     *  Camera roll as default source of images and GPS
+     *  icon to fix/alter a GPS location
+     *  icons to designate category class
+     *  POI title in the 1st text line, editor behind the image screen
+   2. *Submission* screen (list only)
+     *  reorder, drop and submit functions
+     
+     
   
   **Redux Database Schema by example:**
 ```  
