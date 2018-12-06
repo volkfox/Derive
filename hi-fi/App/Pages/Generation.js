@@ -4,7 +4,7 @@ import {  CameraRoll, StyleSheet, Text, View, Button, TextInput, Image, ScrollVi
 import { Images, Colors, Metrics } from '../Themes';
 import { DrawerActions } from 'react-navigation-drawer';
 import { Icon, Card } from 'react-native-elements';
-import { ImagePicker, Permissions } from 'expo';
+import { ImagePicker, Permissions, Svg  } from 'expo';
 import StarRating from 'react-native-star-rating';
 import Dialog, { DialogContent, DialogButton, DialogTitle } from 'react-native-popup-dialog';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
@@ -177,7 +177,7 @@ submitPOI = (e, copyOver) => {
            'Please fill the title line',
            [
              //{text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
-             {text: 'OK', onPress: () => console.log('OK Pressed')},
+             {text: 'OK', onPress: () => console.log('Missing title acknowledged')},
            ],
            { cancelable: false }
          );
@@ -206,7 +206,7 @@ submitTrip = () => {
            'Please add at least one point of interest',
            [
              //{text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
-             {text: 'OK', onPress: () => console.log('OK Pressed')},
+             {text: 'OK', onPress: () => console.log('Missing POI in trip submission')},
            ],
            { cancelable: false }
          );
@@ -218,7 +218,7 @@ submitTrip = () => {
            '',
            'Please name this trip',
            [
-             {text: 'OK', onPress: () => console.log('OK Pressed')},
+             {text: 'OK', onPress: () => console.log('Missing trip title in submission')},
            ],
            { cancelable: false }
          );
@@ -250,7 +250,7 @@ hideMap = () => {
 }
 
 saveTitle = () => {
-    console.log(`text: ${this.state.titleText}`)
+
 
     // empty title or no change
     if (!this.state.titleText.length) {
@@ -262,9 +262,9 @@ saveTitle = () => {
     if (this.state.titleText.length < 5) {
       Alert.alert(
             '',
-            'Please enter report name longer than 5 characters',
+            'Please enter trip name longer than 5 characters',
             [
-              {text: 'OK', onPress: () => console.log('OK Pressed')},
+              {text: 'OK', onPress: () => console.log('Insufficient trip name length')},
             ],
             { cancelable: false }
             )
@@ -300,6 +300,7 @@ getNextImages = () => {
 }
 
 getRollImages = async (after) => {
+
     if (this.loading) return;
     this.loading = true;
     const results = await CameraRoll.getPhotos({ first: 20, after,});
@@ -396,7 +397,6 @@ render() {
           </TouchableOpacity> }
 
           {this.state.showCarousel && <View style={{opacity: this.state.image?1.0:0.2,}}>
-
             <Carousel
                       ref={(c) => { this._carousel = c; }}
                       data={this.state.roll}

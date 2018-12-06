@@ -88,7 +88,7 @@ toggleFilter = async (key) => {
 }
 
 navigateToMarker = (event) => {
-        console.log(this.state.activeMarker);
+
         if (!this.state.activeMarker || !this.state.activeMarker.coordinate) return;
 
         const poi = this.props.allpois.find(marker =>

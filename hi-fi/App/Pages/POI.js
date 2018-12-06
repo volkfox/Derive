@@ -52,8 +52,6 @@ render() {
       if (!Object.keys(poi).length) return null;
 
       const trip = this.props.alltrips.find(item => item.id === poi.tripID);
-      console.log(`Trip test:`);
-      console.log(trip);
 
       const images = poi.images.map( image => {
           const object = {

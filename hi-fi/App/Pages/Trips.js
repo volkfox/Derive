@@ -217,8 +217,7 @@ componentDidMount() {
       this.state.markers.forEach(marker => trips.push(marker.tripID));
       const uniqueTrips = new Set(trips);
 
-      const activeTrips = this.props.alltrips.filter(trip => uniqueTrips.has(trip.id))
-      console.log(activeTrips);
+      const activeTrips = this.props.alltrips.filter(trip => uniqueTrips.has(trip.id));
 
       // render map view
       if (this.state.showMap)

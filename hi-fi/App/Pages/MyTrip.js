@@ -55,7 +55,6 @@ static navigationOptions = ({navigation}) => {
 
 submitTrip = () => {
 
-      console.log("submitting trip");
       this.setState({showMap: false});
 
       if (!this.props.draftpois.length) {
@@ -63,7 +62,7 @@ submitTrip = () => {
               '',
               'Please add at least one point of interest',
               [
-                {text: 'OK', onPress: () => console.log('OK Pressed')},
+                {text: 'OK', onPress: () => console.log('Error: Missing POI late in trip submission')},
               ],
               { cancelable: false }
             );
@@ -75,7 +74,7 @@ submitTrip = () => {
               '',
               'Please name this trip',
               [
-                {text: 'OK', onPress: () => console.log('OK Pressed')},
+                {text: 'OK', onPress: () => console.log('Error: Missing trip name late in submission')},
               ],
               { cancelable: false }
             );
@@ -92,10 +91,9 @@ submitTrip = () => {
 
       Alert.alert(
             '',
-            'Trip publishemd',
+            'Trip published',
             [
-              {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
-              {text: 'OK', onPress: () => console.log('OK Pressed')},
+              {text: 'OK', onPress: () => console.log('Trip published')},
             ],
             { cancelable: false }
           );
@@ -135,19 +133,17 @@ render() {
                    data={trip}
                    keyExtractor = { (item) => JSON.stringify(item) }
 
-                   rightOpenValue={-75}
+                   rightOpenValue={-85}
                    previewRowKey={JSON.stringify(trip[0])}
                    previewOpenValue={this.state.previewValue}
-
+                   previewDuration={900}
                    renderItem={ (element, rowMap) => {
                      // this is poi entry in the trip
-                     console.log(element);
                      const poi = element.item;
 
                      return (
 
                      <TouchableWithoutFeedback onPress={ () => {
-                          console.log(this.rowOpen);
                           //!this.rowOpen && this.props.navigation.navigate('POI',{poi: poi, plan: true})
                            this.rowOpen && this.rowRef.closeRow();
                        }} >

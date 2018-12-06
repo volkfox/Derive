@@ -31,6 +31,7 @@ state = {
       todoFilter: true,
       activeMarker: {},
       changeMarker: {},
+      previewValue: -30,
    }
 
 
@@ -191,14 +192,14 @@ componentDidMount() {
                    friction = {7}
                    onRowOpen={(rowKey, rowMap, toValue) => {this.rowRef = rowMap[rowKey];}}
                    onRowDidClose={(rowKey, rowMap) => {this.rowOpen = false;}}
-                   onRowDidOpen={(rowKey, rowMap) => {this.rowOpen = true;}}
+                   onRowDidOpen={(rowKey, rowMap) => {this.rowOpen = true; this.setState({previewValue: -1});}}
                    useFlatList
                    data={trip}
                    keyExtractor = { (item) => JSON.stringify(item) }
                    leftOpenValue={Metrics.screenWidth*0.6}
                    rightOpenValue={-85}
                    previewRowKey={JSON.stringify(trip[0])}
-                   previewOpenValue={-30}
+                   previewOpenValue={this.state.previewValue}
                    previewDuration={900}
 
                    renderItem={ (element, rowMap) => {
@@ -211,7 +212,7 @@ componentDidMount() {
                      return (
 
                      <TouchableWithoutFeedback onPress={ () => {
-                          console.log(this.rowOpen);
+
                           !this.rowOpen && this.props.navigation.navigate('POI',{poi: poi, plan: true})
                            this.rowOpen && this.rowRef.closeRow();
                        }} >
