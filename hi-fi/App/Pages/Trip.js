@@ -109,7 +109,7 @@ navigateToMarker = (event) => {
             onPress={() => this.toggleFilter('sleepFilter')}
             size = {40}
             underlayColor = 'transparent'
-            color={this.state.sleepFilter?Colors.sleep3:'lightgray'}
+            color={this.state.sleepFilter?Colors.sleep3:'gray'}
           />
         <Text>sleep</Text>
        </View>
@@ -121,7 +121,7 @@ navigateToMarker = (event) => {
            onPress={() => this.toggleFilter('foodFilter')}
            size = {40}
            underlayColor = 'transparent'
-           color={this.state.foodFilter?Colors.food3:'lightgray'}
+           color={this.state.foodFilter?Colors.food3:'gray'}
          />
        <Text>eat</Text>
       </View>
@@ -133,7 +133,7 @@ navigateToMarker = (event) => {
           onPress={() => this.toggleFilter('todoFilter')}
           size = {40}
           underlayColor = 'transparent'
-          color={this.state.todoFilter?Colors.todo3:'lightgray'}
+          color={this.state.todoFilter?Colors.todo3:'gray'}
         />
       <Text>do</Text>
      </View>

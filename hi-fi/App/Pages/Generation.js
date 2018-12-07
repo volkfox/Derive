@@ -22,6 +22,7 @@ import { addReport, addDraftPOI } from '../Store/Actions';
   constructor(props) {
         super(props);
         this.mapRef = null;
+        this.exposeRef = null;
         this.note = '';
         this.props.navigation.setParams({ title: this.state.title });
         this.props.navigation.setParams({ setTitle: this.setTitle });
@@ -158,17 +159,19 @@ validGPS =  () => {
 submitPOI = (e, copyOver) => {
 
   this.hideMap();
+  if (this.state.note) this.parseNote(this.state.note);
 
   if (!this.validGPS()) {
 
        !copyOver && Alert.alert(
            '',
-           'Select location-enabled image or 📌',
+           'Scroll to location-enabled image or 📌 your image to map',
            [
              {text: 'OK', onPress: () => {}},
            ],
            { cancelable: false }
          );
+     this.setState({carouselFlipped: false});
      return;
    }
 
@@ -195,6 +198,7 @@ submitPOI = (e, copyOver) => {
    this.resetState();
    // 2. save to redux
    this.props.upsert(poi);
+   if (this.exposeRef) this.exposeRef.scrollToEnd({animated: true});
 }
 
 // refactored to lead into another screen
@@ -275,6 +279,7 @@ saveTitle = () => {
     }
 
     // good title here
+
     this.setState({title: this.state.titleText, titleDialogVisible: false});
     this.props.navigation.setParams({ title: this.state.titleText})
 }
@@ -538,7 +543,10 @@ render() {
 
   {!this.state.showMap &&
 
-     <ScrollView style={styles.exposeRibbon} contentContainerStyle={styles.exposeContainer} horizontal='true'>
+     <ScrollView style={styles.exposeRibbon}
+       contentContainerStyle={styles.exposeContainer}
+       horizontal='true'
+       ref={component => { this.exposeRef = component; }}>
 
        {this.props.draftpois.map(poi => (
           <TouchableOpacity key={poi.id} onPress={() =>  {this.submitPOI(true, true); this.copyState(poi)}}>
