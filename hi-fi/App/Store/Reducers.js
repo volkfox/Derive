@@ -76,13 +76,16 @@ export function reducer(state = initialStoreState, action) {
     poi.derived++;
 
     const otherPois = state.allpois.filter(item =>  item.id !== action.poiID);
+    const trips = state.alltrips.filter(trip => trip);
+    const tripIndex = trips.findIndex(item => item.pois.includes(action.poiID));
+    trips[tripIndex].derived++;
 
     // modify both plannedTrip and derived status
      return Object.assign({}, state, {
         plannedTrip: [
         {notes: '', importance: poi.authorRating, poi: action.poiID, active: 'true'},
         ...state.plannedTrip,
-      ], allpois: [poi, ...otherPois,]});
+      ], allpois: [poi, ...otherPois,], alltrips: trips});
   }
 
   if (action.type === CHANGE_NOTE_POI) {

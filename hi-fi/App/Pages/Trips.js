@@ -59,8 +59,6 @@ static navigationOptions = ({navigation}) => {
     }
 };
 
-
-
 _keyExtractor = (item, index) => item.id;
 
 _renderTrip = ({item}) => {
@@ -84,7 +82,7 @@ _renderTrip = ({item}) => {
                     fullStarColor={'lightgray'}
                     starSize={20}
                     />
-                  <Text style={{fontFamily: 'Helvetica Neue'}}>/{item.derived} </Text>
+                  <Text style={{fontFamily: 'Helvetica Neue'}}>/ derived by {item.derived} </Text>
             </View>
            <View style = {styles.tripPropertiesContainer}>
 
@@ -176,7 +174,6 @@ toggleShowMap = () => {
    this.setState((prevstate) => {return {showMap: !prevstate.showMap}});
 
 }
-
 
 
 // logic: if there is an active marker double clicking always sends to marker position
