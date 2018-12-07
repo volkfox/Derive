@@ -23,7 +23,6 @@ import { addReport, addDraftPOI } from '../Store/Actions';
         super(props);
         this.mapRef = null;
         this.exposeRef = null;
-        this.note = '';
         this.props.navigation.setParams({ title: this.state.title });
         this.props.navigation.setParams({ setTitle: this.setTitle });
 
@@ -159,7 +158,6 @@ validGPS =  () => {
 submitPOI = (e, copyOver) => {
 
   this.hideMap();
-  if (this.state.note) this.parseNote(this.state.note);
 
   if (!this.validGPS()) {
 
@@ -175,23 +173,40 @@ submitPOI = (e, copyOver) => {
      return;
    }
 
-   if (!this.state.header) {
+  let text ='';
+  let header = '';
+  const jitNote = this.state.note;
 
-     !copyOver && Alert.alert(
-           '',
-           'Please fill the title line',
-           [
-             //{text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
-             {text: 'OK', onPress: () => console.log('Missing title acknowledged')},
-           ],
-           { cancelable: false }
-         );
+  if (jitNote) {
 
-     this.setState({carouselFlipped: true});
-     return;
-   }
+    const body = jitNote.split('\n');
+    header = body.shift();
+    text = body.join('\n');
+
+  } else {
+
+       if (!this.state.header) {
+
+         !copyOver && Alert.alert(
+               '',
+               'Please fill the title line',
+               [
+                 //{text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
+                 {text: 'OK', onPress: () => console.log('Missing title acknowledged')},
+               ],
+               { cancelable: false }
+             );
+
+         this.setState({carouselFlipped: true});
+         return;
+       } else {
+
+         text = this.state.text;
+         header = this.state.header;
+       }
+ }
    const pinColorName = this.state.category+this.state.authorRating;
-   const poi = {id: this.state.id?this.state.id:shortid.generate(), category: this.state.category, header: this.state.header, text: this.state.text, images: [this.state.image], coordinate: {latitude: this.state.lat, longitude: this.state.lng}, authorRating: this.state.authorRating,
+   const poi = {id: this.state.id?this.state.id:shortid.generate(), category: this.state.category, header: header, text: text, images: [this.state.image], coordinate: {latitude: this.state.lat, longitude: this.state.lng}, authorRating: this.state.authorRating,
      pinColor: Colors[pinColorName], derived: 0, author: this.state.author, };
 
    // 1. clear the current poi record
@@ -295,7 +310,6 @@ parseNote = (note) => {
 
     const text = body.join('\n');
     this.setState({text: text});
-    this.note='';
 }
 
 getNextImages = () => {
