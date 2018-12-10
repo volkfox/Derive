@@ -236,14 +236,15 @@ submitTrip = () => {
    }
 
    if (this.state.title === 'New Trip') {
-     Alert.alert(
+     /* Alert.alert(
            '',
            'Please name this trip',
            [
              {text: 'OK', onPress: () => console.log('Missing trip title in submission')},
            ],
            { cancelable: false }
-         );
+         ); */
+     this.setTitle();
      return;
    }
 
