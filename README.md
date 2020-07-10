@@ -1,4 +1,17 @@
-## Hi-Fi project featurelist
+# Derive is a travel blog app written in React Native.
+### It allows for recording, rating, sharing and discovering experiences with fellow travellers
+
+![Alt text](hi-fi/frontpage.png?raw=true "Derive app")
+
+## Main Features: 
+(a) Location-based map or list discovery of points of interest (POI)
+(b) Adding points of interest as mini-stories with text and photos per category
+
+
+## Technologies: Google map API, Redux, React Native
+
+
+## Derive project featurelist
 
 Core tasks (**Explore, Plan, Report**) are accessed via edge swipe  (also duplicated in hamburger menu).
 
