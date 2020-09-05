@@ -1,32 +1,37 @@
 # Derive is a travel blog app written in React Native.
 ### It allows for recording, rating, sharing and discovering experiences with fellow travellers
 
-<tr>
+
+
+<table style="border: 10px solid black;">
+<tr>     
 <td><img src="IMG_4554.PNG"
      alt="Explore" width="200"
-         style="float: left; margin-right: 10px;" /></td>
+         style="margin: 20px;" /></td>
 
 <td><img src="IMG_4556.PNG"
      alt="Report" width="200"
-     style="float: left; margin-right: 0px;" /></td>
+     style="margin: 20px;" /></td>
 
 <td><img src="IMG_4557.PNG"
      alt="Plan" width="200"
-     style="float: left; margin-right: 20px;" /></td>
-
+     style="margin: 20px;" /></td>
+</tr>
+<tr>
 <td><img src="IMG_4558.PNG"
      alt="Use map" width="200"
-     style="float: left; margin-right: 20px;" /></td>
+     style="margin: 20px;" /></td>
      
 <td><img src="IMG_4559.PNG"
      alt="Steal Gems" width="200"
-     style="float: left; margin-right: 20px;" /></td>
+     style="margin: 20px;" /></td>
 
 <td><img src="IMG_4561.PNG"
      alt="Make notes" width="200"
-     style="float: left; margin-right: 20px;" /></td>
+     style="margin: 20px;" /></td>
+</tr>
+</table>
 
-<tr>
 ## Main Features: 
 (a) Location-based map or list discovery of points of interest (POI)
 (b) Adding points of interest as mini-stories with text and photos per category
