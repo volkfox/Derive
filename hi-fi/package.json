@@ -9,7 +9,7 @@
     "eject": "expo eject"
   },
   "dependencies": {
-    "expo": "^31.0.2",
+    "expo": "^46.0.16",
     "install": "^0.12.2",
     "npm": "^6.4.1",
     "react": "16.5.0",
